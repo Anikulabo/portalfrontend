@@ -3,7 +3,7 @@ import React from "react";
 export const Forms = (props) => {
   const childrenArray = React.Children.toArray(props.children);
   return (
-    <form className="container-fluid">
+    <form className="container-fluid" style={{marginTop:"50px"}}>
       <small
         className="text-danger"
         style={{ display: props.small ? "block" : "none", marginTop: "40px" }}

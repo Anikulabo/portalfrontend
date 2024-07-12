@@ -1,7 +1,4 @@
-import { useContext } from "react";
-import { Allcontext } from "../login";
 export const Inputpassword = (props) => {
-  const { addpassword, hideicon, changeType } = useContext(Allcontext);
   return (
     <div style={{ marginTop: "25px", marginLeft: "0" }}>
       {props.variable}
@@ -11,9 +8,10 @@ export const Inputpassword = (props) => {
           type={props.type ? "password" : "text"}
           className="data"
           placeholder={props.placeholder}
+          value={props.value}
           onChange={(event) => {
-            addpassword(event);
-            hideicon(event);
+            props.action.addupdate(event,'password');
+            props.action.hideicon(event);
           }}
         />
         <i
@@ -22,7 +20,7 @@ export const Inputpassword = (props) => {
             display: props.eyeicon ? "block" : "none",
             marginLeft: "-3rem",
           }}
-          onClick={() => changeType()}
+          onClick={() => props.action.changeType()}
         />
       </div>
       <br />

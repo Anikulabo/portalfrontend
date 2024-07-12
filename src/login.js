@@ -1,25 +1,22 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState } from "react";
 import { updateentry } from "./action";
 import { useSelector, useDispatch } from "react-redux";
-import { Inputpassword,Forms } from "./components";
+import { Textinput, Inputpassword, Forms, Top } from "./components";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import exam4 from "./components/img/exam4.jpg";
 import exam5 from "./components/img/exam5.jpg";
-import exam6 from "./components/img/exam6.jpg";
-import exam7 from "./components/img/exam7.jpg";
+import favicon from "./components/img/unaab.jpeg";
 const Allcontext = createContext();
 function Login() {
   //const navigate = useNavigate();
   const dispatch = useDispatch();
-  let password = useSelector((state) => state.items.userdata.password);
- let error=useSelector((state)=>state.items.error)
+  let data = useSelector((state) => state.items.userdata);
+  let error = useSelector((state) => state.items.error);
   const [type, setType] = useState(true);
   const [icon, setIcon] = useState(false);
-  const [index, setIndex] = useState(0);
-  const addpassword = (event) => {
+  const addupdate = (event, type) => {
     let value = event.target.value;
-    dispatch(updateentry(value, "password"));
+    dispatch(updateentry(value, type));
   };
   const hideicon = (event) => {
     const control = event.target.value.length;
@@ -32,16 +29,9 @@ function Login() {
   const changeType = () => {
     setType(!type);
   };
-  const images = [exam4, exam5, exam6, exam7];
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [images.length]);
   const leftHalfStyle = {
     height: "100vh",
-    backgroundImage: `url(${images[index]})`,
+    backgroundImage: `url(${exam5})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
     position: "relative",
@@ -62,20 +52,45 @@ function Login() {
           style={leftHalfStyle}
         >
           <div style={redHueStyle}></div>
-          {/* Content for the left half */}
+          <div className="bottom-div-container">
+            <div className="bottom-div">
+              <img
+                className="round-image"
+                src={favicon}
+                alt="the school logo should show here"
+                height={"40px"}
+              />
+              <h3>Welcome to FUNAAB portal</h3>
+            </div>
+          </div>
         </div>
         <div className="col-md-6 formholder d-flex align-items-stretch d-sm-none d-md-block">
-            <Forms small={false} error={error}>
-            <Allcontext.Provider value={{ addpassword, hideicon, changeType }}>
+          <Top content={"Log in"} />
+          <Forms small={false} error={error}>
+              <Textinput
+                variable={"UserName"}
+                data={data.username}
+                placeholder={"enter your Username"}
+                action={addupdate}
+                ctrl={"username"}
+              />
               <Inputpassword
                 variable={"Password"}
                 type={type}
                 placeholder={"type your password"}
-                //value={password}
+                value={data.password}
                 eyeicon={icon}
+                action={{addupdate,hideicon,changeType}}
               />
-            </Allcontext.Provider>
-            </Forms>
+          </Forms>
+          <button
+            className="submit-button"
+            onClick={() => {
+              alert(data.username);
+            }}
+          >
+            Login
+          </button>
         </div>
         <div
           className="col-sm-12 d-md-none d-sm-block d-flex align-items-stretch"
@@ -85,4 +100,4 @@ function Login() {
     </div>
   );
 }
-export  {Login,Allcontext};
+export { Login, Allcontext };

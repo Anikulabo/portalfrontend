@@ -1,0 +1,48 @@
+import React, { useState, useContext } from "react";
+import { Splitkey } from "./splitkeydisplay";
+import { arraycompare } from "./dependencies";
+import { Studentcontext } from "../studentregistration";
+import "./top.css"; // Optional: for custom styling
+
+const Dropdown = ({ options, selected, allobject }) => {
+  const [open, setOpen] = useState(false);
+
+  const renderOptions = options.map((option, index) => {
+    /*let values = Object.values(option);
+    if (values.includes(selected)) {
+      return null;
+    }*/
+    return <div key={index}>{option}</div>;
+    // try {
+    //   let unique = allobject.findIndex((detail) =>
+    //     arraycompare(Object.values(detail), values)
+    //   );
+
+    //   return (
+    //     <Studentcontext.Consumer key={index}>
+    //       {(context) => (
+    //         <div onClick={(event) => context.updateselected(event)}>
+    //           {/* Render Splitkey component here */}
+    //           <Splitkey refobject={option} getunique={unique} />
+    //         </div>
+    //       )}
+    //     </Studentcontext.Consumer>
+    //   );
+    // } catch (error) {
+    //   console.error("error:",error)
+    //   alert(error);
+    // }
+  });
+
+  return (
+    <div className="dropdown">
+      <div className="dropdown-header" onClick={() => setOpen(!open)}>
+        {selected}
+        <i className={`dropdown-icon ${open ? "open" : ""}`}></i>
+      </div>
+      {open && <div className="dropdown-menu">{renderOptions}</div>}
+    </div>
+  );
+};
+
+export default Dropdown;

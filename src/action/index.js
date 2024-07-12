@@ -1,7 +1,7 @@
 import { UPDATE } from "./type";
-export const updateentry=(update,type)=>{
+export const updateentry=(update,ctrl)=>{
     return{
         type:UPDATE,
-        payload:{update,type}
+        payload:{update,ctrl}
     }
 }

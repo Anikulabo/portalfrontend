@@ -1,5 +1,5 @@
 export const Textinput = (props) => {
-    return (
+  return (
       <div style={{ marginTop: "25px", marginLeft: "0" }}>
         {props.variable} <br />
         <input
@@ -8,7 +8,7 @@ export const Textinput = (props) => {
           placeholder={props.placeholder}
           value={props.username}
           onChange={(event) =>
-            props.actions.changeVariable(event.target.value, props.variable)
+           props.action(event,props.ctrl)
           }
         />
         <br />

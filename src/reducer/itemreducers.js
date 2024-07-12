@@ -1,7 +1,7 @@
 import { UPDATE } from "../action/type";
 const initialstate = {
   token: null,
-  userdata: { username: "", password: "", role: 0 },
+  userdata: { username: "", role: 0, password: "" },
   error: "",
   messages: [],
   notifications: [],
@@ -9,25 +9,25 @@ const initialstate = {
 export const itemReducer = (state = initialstate, action) => {
   switch (action.type) {
     case UPDATE:
-      const { type, update } = action.payload;
-      if (state.hasOwnProperty(type)) {
+      const { update, ctrl } = action.payload;
+      if (state.hasOwnProperty(ctrl)) {
         // Handle direct state properties like 'error' and 'token'
         return {
           ...state,
-          [type]: update,
+          [ctrl]: update,
         };
       } else {
-        for (const { key, value } of Object.entries(state)) {
-          if (typeof value === "object" && !Array.isArray(value)) {
-            if (value.hasOwnProperty(type)) {
+        for (const [key, value] of Object.entries(state)) {
+          if (typeof value === "object" && !Array.isArray(value)&&value!==null) {
+            if (value.hasOwnProperty(ctrl)) {
               return {
                 ...state,
-                [key]: { ...state[key], [type]: update },
+                [key]: { ...state[key], [ctrl]: update },
               };
             }
           }
         }
-        return state
+        return state;
       }
     default:
       return state;
