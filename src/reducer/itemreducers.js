@@ -3,6 +3,17 @@ const initialstate = {
   token: null,
   userdata: { username: "", role: 0, password: "" },
   error: "",
+  studentdetail: {
+    first_name: "",
+    last_name: "",
+    category_id: null,
+    department_id: null,
+    year: null,
+    sex: "",
+    DOB: "",
+    email: "",
+    address: "",
+  },
   messages: [],
   notifications: [],
 };
@@ -18,7 +29,11 @@ export const itemReducer = (state = initialstate, action) => {
         };
       } else {
         for (const [key, value] of Object.entries(state)) {
-          if (typeof value === "object" && !Array.isArray(value)&&value!==null) {
+          if (
+            typeof value === "object" &&
+            !Array.isArray(value) &&
+            value !== null
+          ) {
             if (value.hasOwnProperty(ctrl)) {
               return {
                 ...state,

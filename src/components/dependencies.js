@@ -19,12 +19,13 @@ export const onselected = (event, allentries, selected) => {
       "The second argument should be an array of objects, and the third argument should be a string"
     );
   }
-  let seaechkey = event.target.getAttribute("id");
-  const detail = allentries.find((entry) => entry.id === seaechkey);
+  let seaechkey = event.currentTarget.getAttribute("id");
+  const detail = allentries[seaechkey];
   if (detail) {
     const res = detail[selected];
     if (res) {
-      return res;
+      //console.log(res);
+      return {res:res,id:detail.id};
     } else {
       const detailkeys = Object.keys(detail);
       throw new Error(
@@ -41,19 +42,19 @@ export const arraycompare = (first, second) => {
   if (!Array.isArray(first) || !Array.isArray(second)) {
     throw new Error("both arguments must be an array");
   }
-  let minimum =Math.min(first.length, second.length);
+  let minimum = Math.min(first.length, second.length);
   let match = 0;
- for(const item of first){
-  if(second.includes(item)){
-    match+=1
+  for (const item of first) {
+    if (second.includes(item)) {
+      match += 1;
+    }
   }
- }
- return match>=minimum
+  return match >= minimum;
 };
 export const typechecker = (incomingobject, expectedkeys) => {
   // An array to accept the good keys
   const goodkeys = [];
-  
+
   // Check if expectedkeys is an array
   if (!Array.isArray(expectedkeys)) {
     throw new Error(
@@ -66,11 +67,13 @@ export const typechecker = (incomingobject, expectedkeys) => {
     (detail) =>
       !detail.key ||
       !detail.type ||
-      (typeof detail.type !== "string"&&!Array.isArray(detail.type))
+      (typeof detail.type !== "string" && !Array.isArray(detail.type))
   );
   if (abnormality) {
     throw new Error(
-      `Abnormal key: ${JSON.stringify(abnormality)}. We need an array of objects with keys ['key', 'type'] as the second parameter, and both key and type must be strings.`
+      `Abnormal key: ${JSON.stringify(
+        abnormality
+      )}. We need an array of objects with keys ['key', 'type'] as the second parameter, and both key and type must be strings.`
     );
   }
 
@@ -97,7 +100,9 @@ export const typechecker = (incomingobject, expectedkeys) => {
     // Validate the type of the value
     if (match.type !== "array" && match.type !== typeof value) {
       throw new Error(
-        `Expected a ${match.type} for key ${key} in the first parameter, but received a ${typeof value}.`
+        `Expected a ${
+          match.type
+        } for key ${key} in the first parameter, but received a ${typeof value}.`
       );
     }
 
@@ -111,7 +116,9 @@ export const typechecker = (incomingobject, expectedkeys) => {
     // Handle cases where 'type' is an array of acceptable types
     if (Array.isArray(match.type) && !match.type.includes(typeof value)) {
       throw new Error(
-        `Expected one of [${match.type.join(", ")}] for key ${key}, but received ${typeof value}.`
+        `Expected one of [${match.type.join(
+          ", "
+        )}] for key ${key}, but received ${typeof value}.`
       );
     }
 
@@ -129,3 +136,4 @@ export const typechecker = (incomingobject, expectedkeys) => {
 
   return goodkeys;
 };
+

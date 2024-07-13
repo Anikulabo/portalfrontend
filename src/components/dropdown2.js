@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { Splitkey } from "./splitkeydisplay";
 import { arraycompare } from "./dependencies";
 import { Studentcontext } from "../studentregistration";
-const Dropdown2 = ({ options, selected, allobject,topic,style }) => {
-  const [open, setOpen] = useState(true);
+const Dropdown2 = ({ options, selected, allobject, topic, style, action }) => {
+  const [open, setOpen] = useState(false);
   const toggleDropdown = () => {
     setOpen(!open); // Toggle dropdown visibility
   };
@@ -28,8 +28,20 @@ const Dropdown2 = ({ options, selected, allobject,topic,style }) => {
         </Dropdown.Toggle>
         <Dropdown.Menu>
           {options.map((option, index) => {
-            if (typeof option === "string") {
-              return <Dropdown.Item key={index}>{option}</Dropdown.Item>;
+            if (typeof option === ("string" || "number")) {
+              return (
+                <Dropdown.Item
+                  variant={option === selected ? "primary" : ""}
+                  key={index}
+                  id={0}
+                  onClick={(event) => {
+                    action ? action({event, type:topic}) : console.log(index);
+                   toggleDropdown()
+                  }}
+                >
+                  {option}
+                </Dropdown.Item>
+              );
             }
             if (typeof option === "object") {
               let values = Object.values(option);
@@ -40,14 +52,22 @@ const Dropdown2 = ({ options, selected, allobject,topic,style }) => {
                 <Studentcontext.Consumer key={index}>
                   {(context) => (
                     <Dropdown.Item
-                      variant={values.includes(selected) ? "primary" : ""}
                       align="end"
+                      className={
+                        values.includes(selected) ? "bg-primary text-light" : ""
+                      }
                     >
                       <div
                         id={unique}
                         onClick={(event) => {
-                          let value = event.currentTarget.getAttribute(`id`);
-                          alert(value);
+                          let visiblepart = context["part"][topic];
+                          context.updateselected({
+                            event,
+                            mainobject:allobject,
+                            visiblepart,
+                            type:topic,
+                          });
+                          toggleDropdown();
                         }}
                       >
                         {/* Render Splitkey component here */}
@@ -58,6 +78,7 @@ const Dropdown2 = ({ options, selected, allobject,topic,style }) => {
                 </Studentcontext.Consumer>
               );
             }
+            return;
           })}
         </Dropdown.Menu>
       </Dropdown>
