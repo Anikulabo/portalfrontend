@@ -34,7 +34,7 @@ export const Bottom = ({ number, action, btndisplay, ctrl }) => {
           ctrl();
         }}
       >
-        <i className="fas fa-th-large "></i>
+        <i className="fas fa-check "></i>
         <span style={{ marginLeft: "3px" }}>Submit</span>
       </button>
       <button

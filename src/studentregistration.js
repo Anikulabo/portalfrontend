@@ -25,6 +25,7 @@ const Registration = () => {
   const [selected, setSelected] = useState({
     category: "select a category",
     department: "select a department",
+    year: "select a year",
   });
   let [page, setPage] = useState(1);
   const [btndisplay, setBtndisplay] = useState({ next: true, previous: false });
@@ -33,13 +34,25 @@ const Registration = () => {
   let data = useSelector((state) => state.items.studentdetail);
   let yearoption = [];
   useEffect(() => {
+    console.log("useEffect triggered with page:", page);
     if (page >= 2) {
-      setBtndisplay((prevDisplay) => ({ ...prevDisplay, previous: true, next: false }));
+      console.log("Setting btndisplay to previous: true, next: false");
+      setBtndisplay((prevDisplay) => ({
+        ...prevDisplay,
+        previous: true,
+        next: false,
+      }));
     } else {
-      setBtndisplay((prevDisplay) => ({ ...prevDisplay, previous: false, next: true }));
+      console.log("Setting btndisplay to previous: false, next: true");
+      setBtndisplay((prevDisplay) => ({
+        ...prevDisplay,
+        previous: false,
+        next: true,
+      }));
     }
   }, [page]);
-    const updateselected = (arg) => {    let allkeys = Object.keys(arg);
+  const updateselected = (arg) => {
+    let allkeys = Object.keys(arg);
     try {
       let currentselection;
       if (allkeys.includes("mainobject", "visiblepart")) {
@@ -54,27 +67,38 @@ const Registration = () => {
       if (selected.hasOwnProperty(arg["type"])) {
         setSelected({ ...selected, [arg["type"]]: currentselection.res });
       }
-      dispatch(updateentry(currentselection["id"], `${arg["type"]}_id`));
+      if (arg["type"] === "category" || arg["type"] === "department") {
+        dispatch(updateentry(currentselection["id"], `${arg["type"]}_id`));
+      } else {
+        dispatch(updateentry(currentselection["id"], `${arg["type"]}`));
+      }
     } catch (error) {
       console.error("error:", error);
     }
     console.log(yearoption);
   };
   const updatedata = (event, key) => {
-    const value =
-      event.target.value || event.currentTarget.getAttribute("class");
+    const value = event.target.value;
     dispatch(updateentry(value, key));
   };
   const changepage = (event) => {
-    let value = event.target.value;
-    if (value === "next") {
-      setPage((page += 1));
+    let value = event.target.innerText;
+    if (value === "Next") {
+      setPage((prevPage) => {
+        let newPage = prevPage + 1;
+        console.log("New page value after increment:", newPage);
+        return newPage;
+      });
     } else {
-      setPage((page -= 1));
+      setPage((prevPage) => {
+        let newPage = prevPage - 1;
+        console.log("New page value after increment:", newPage);
+        return newPage;
+      });
     }
   };
   const submit = () => {
-    console.log(btndisplay);
+    console.log(data);
   };
   const leftHalfStyle = {
     height: "100vh",
@@ -133,22 +157,23 @@ const Registration = () => {
           {/* Content for the left half */}
         </div>
         <div className="col-md-6 d-sm-none d-md-block formholder d-flex align-items-stretch">
+          <Top content={"Registration"} />
+          {/* content of page 1 */}
           {page === 1 && (
             <div>
-              <Top content={"Registration"} />
               <Forms small={false} error={error}>
                 <Textinput
                   variable={"FirstName"}
-                  data={data.first_name}
+                  username={data.first_name}
                   placeholder={"Enter the student's firstname"}
                   action={updatedata}
                   ctrl={"first_name"}
                 />
                 <Textinput
                   variable={"LastName"}
-                  data={data.last_name}
+                  username={data.last_name}
                   placeholder={"Enter the student's lastname"}
-                  action={updateselected}
+                  action={updatedata}
                   ctrl={"last_name"}
                 />
                 <br />
@@ -177,6 +202,70 @@ const Registration = () => {
                   />
                 )}
               </Studentcontext.Provider>
+            </div>
+          )}
+          {/*content of page 2*/}
+          {page === 2 && (
+            <div>
+              <Forms>
+                <Dropdown2
+                  options={
+                    yearoption.length > 0 ? yearoption : ["no year availble"]
+                  }
+                  selected={selected.year}
+                  allobject={null}
+                  topic={"year"}
+                  style={{ position: "fixed", top: "10rem" }}
+                  action={updateselected}
+                />
+                <div className="radio-group">
+                  <span style={{ marginRight: "30px" }}>Sex:</span>
+                  <label for="male">
+                    <input
+                      type="radio"
+                      id="male"
+                      name="sex"
+                      value="M"
+                      style={{ marginRight: "5px" }}
+                      onChange={(event) => {updatedata(event,"sex")}}
+                      checked={data.sex === "M" ? true : false}
+                    />
+                    Male
+                  </label>
+                  <label for="female">
+                    <input
+                      type="radio"
+                      id="female"
+                      name="sex"
+                      value="F"
+                      style={{ marginRight: "5px" }}
+                      onChange={(event) => {updatedata(event,"sex")}}
+                      checked={data.sex === "F" ? true : false}
+                    />
+                    Female
+                  </label>
+                </div>
+                <div className="input-group">
+                  <label for="dob">Date of Birth:</label>
+                  <input type="date" id="dob" name="dob" onChange={(event)=>{updatedata(event,"DOB")}} value={data["DOB"]}/>
+                </div>
+                <div className="otherinput">
+                  <Textinput
+                    variable={"Email address"}
+                    username={data.email}
+                    placeholder={"Enter the student's Email addess"}
+                    action={updatedata}
+                    ctrl={"email"}
+                  />
+                  <Textinput
+                    variable={"Home address"}
+                    username={data.address}
+                    placeholder={"Enter the student's home addess"}
+                    action={updatedata}
+                    ctrl={"address"}
+                  />
+                </div>
+              </Forms>
             </div>
           )}
           <Bottom

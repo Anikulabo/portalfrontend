@@ -28,15 +28,17 @@ const Dropdown2 = ({ options, selected, allobject, topic, style, action }) => {
         </Dropdown.Toggle>
         <Dropdown.Menu>
           {options.map((option, index) => {
-            if (typeof option === ("string" || "number")) {
+            if (typeof option === "string" || typeof option === "number") {
               return (
                 <Dropdown.Item
                   variant={option === selected ? "primary" : ""}
                   key={index}
-                  id={0}
+                  id={option === "all" ? 0 : option}
                   onClick={(event) => {
-                    action ? action({event, type:topic}) : console.log(index);
-                   toggleDropdown()
+                    action
+                      ? action({ event, type: topic })
+                      : console.log(index);
+                    toggleDropdown();
                   }}
                 >
                   {option}
@@ -63,9 +65,9 @@ const Dropdown2 = ({ options, selected, allobject, topic, style, action }) => {
                           let visiblepart = context["part"][topic];
                           context.updateselected({
                             event,
-                            mainobject:allobject,
+                            mainobject: allobject,
                             visiblepart,
-                            type:topic,
+                            type: topic,
                           });
                           toggleDropdown();
                         }}
