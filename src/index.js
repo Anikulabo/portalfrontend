@@ -1,9 +1,19 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-//import "./index.css";
+import initialstate from "./reducer/itemreducers";
+import { uniquekeycheck } from "./components/dependencies";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 const root = ReactDOM.createRoot(document.getElementById("root"));
+try {
+  uniquekeycheck(initialstate);
+  console.log('All keys are unique. Proceeding to render the app.');
+} catch (error) {
+  console.error('Error:', error.message);
+  alert('Initialization failed. Check console for details.');
+  // Optionally prevent app from loading further
+  throw error;
+}
 root.render(
   <React.StrictMode>
     <App/>

@@ -4,7 +4,15 @@ import React, { useState } from "react";
 import { Splitkey } from "./splitkeydisplay";
 import { arraycompare } from "./dependencies";
 import { Studentcontext } from "../studentregistration";
-const Dropdown2 = ({ options, selected, allobject, topic, style, action }) => {
+const Dropdown2 = ({
+  options,
+  selected,
+  allobject,
+  topic,
+  style,
+  action,
+  part,
+}) => {
   const [open, setOpen] = useState(false);
   const toggleDropdown = () => {
     setOpen(!open); // Toggle dropdown visibility
@@ -31,8 +39,12 @@ const Dropdown2 = ({ options, selected, allobject, topic, style, action }) => {
             if (typeof option === "string" || typeof option === "number") {
               return (
                 <Dropdown.Item
-                  variant={option === selected ? "primary" : ""}
                   key={index}
+                  className={
+                    option === selected || Number(selected) === option
+                      ? "bg-primary text-light"
+                      : ""
+                  }
                   id={option === "all" ? 0 : option}
                   onClick={(event) => {
                     action
@@ -51,33 +63,29 @@ const Dropdown2 = ({ options, selected, allobject, topic, style, action }) => {
                 arraycompare(Object.values(detail), values)
               );
               return (
-                <Studentcontext.Consumer key={index}>
-                  {(context) => (
-                    <Dropdown.Item
-                      align="end"
-                      className={
-                        values.includes(selected) ? "bg-primary text-light" : ""
-                      }
-                    >
-                      <div
-                        id={unique}
-                        onClick={(event) => {
-                          let visiblepart = context["part"][topic];
-                          context.updateselected({
-                            event,
-                            mainobject: allobject,
-                            visiblepart,
-                            type: topic,
-                          });
-                          toggleDropdown();
-                        }}
-                      >
-                        {/* Render Splitkey component here */}
-                        <Splitkey refobject={option} />
-                      </div>
-                    </Dropdown.Item>
-                  )}
-                </Studentcontext.Consumer>
+                <Dropdown.Item
+                  align="end"
+                  className={
+                    values.includes(selected) ? "bg-primary text-light" : ""
+                  }
+                >
+                  <div
+                    id={unique}
+                    onClick={(event) => {
+                      let visiblepart = part;
+                      action({
+                        event,
+                        mainobject: allobject,
+                        visiblepart,
+                        type: topic,
+                      });
+                      toggleDropdown();
+                    }}
+                  >
+                    {/* Render Splitkey component here */}
+                    <Splitkey refobject={option} />
+                  </div>
+                </Dropdown.Item>
               );
             }
             return;

@@ -1,4 +1,5 @@
 import { UPDATE } from "../action/type";
+import { automatic_obj_update } from "../components/dependencies";
 const initialstate = {
   token: null,
   userdata: { username: "", role: 0, password: "" },
@@ -6,45 +7,39 @@ const initialstate = {
   studentdetail: {
     first_name: "",
     last_name: "",
-    category_id: null,
-    department_id: null,
-    year: null,
     sex: "",
     DOB: "",
-    email: "",
-    address: "",
+  },
+  teacherdetail:{
+    fname:"",
+    lname:"",
+    phoneNo:""
   },
   messages: [],
   notifications: [],
+  common: {
+    category_id: null,
+    email: "",
+    address: "",
+    department_id: null,
+    year: null,
+    teacherid: null,
+  },
 };
 export const itemReducer = (state = initialstate, action) => {
   switch (action.type) {
     case UPDATE:
       const { update, ctrl } = action.payload;
-      if (state.hasOwnProperty(ctrl)) {
-        // Handle direct state properties like 'error' and 'token'
-        return {
-          ...state,
-          [ctrl]: update,
-        };
-      } else {
-        for (const [key, value] of Object.entries(state)) {
-          if (
-            typeof value === "object" &&
-            !Array.isArray(value) &&
-            value !== null
-          ) {
-            if (value.hasOwnProperty(ctrl)) {
-              return {
-                ...state,
-                [key]: { ...state[key], [ctrl]: update },
-              };
-            }
-          }
-        }
-        return state;
+      try{
+        const newstate=automatic_obj_update(state,update,ctrl)
+        return newstate
+      }catch(error){
+        console.error("error:",error)
+        alert("unable to update state.see console for detail")
+        return state
       }
     default:
       return state;
   }
 };
+export default initialstate;

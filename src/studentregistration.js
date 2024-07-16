@@ -1,11 +1,9 @@
-import { useState, createContext, useEffect } from "react";
+import { useState,  useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { objectreducer, onselected } from "./components/dependencies";
 import { updateentry } from "./action";
-import { Dropdown2 } from "./components/dropdown2";
-import { Bottom } from "./components";
 import exam4 from "./components/img/exam4.jpg";
-import { Top, Textinput, Forms } from "./components";
+import { Top, Textinput, Forms, Bottom, Dropdown2 } from "./components";
 
 const categories = [
   { id: 1, categoryName: "senior", years: 3 },
@@ -18,9 +16,6 @@ const departments = [
   { id: 2, category_id: 1, name: "art" },
   { id: 3, category_id: 1, name: "commercial" },
 ];
-
-const Studentcontext = createContext();
-
 const Registration = () => {
   const [selected, setSelected] = useState({
     category: "select a category",
@@ -31,19 +26,18 @@ const Registration = () => {
   const [btndisplay, setBtndisplay] = useState({ next: true, previous: false });
   let dispatch = useDispatch();
   let error = useSelector((state) => state.items.error);
-  let data = useSelector((state) => state.items.studentdetail);
+  let maindetail = useSelector((state) => state.items.studentdetail);
+  let common = useSelector((state) => state.items.common);
+  let data = { ...maindetail, ...common };
   let yearoption = [];
   useEffect(() => {
-    console.log("useEffect triggered with page:", page);
     if (page >= 2) {
-      console.log("Setting btndisplay to previous: true, next: false");
       setBtndisplay((prevDisplay) => ({
         ...prevDisplay,
         previous: true,
         next: false,
       }));
     } else {
-      console.log("Setting btndisplay to previous: false, next: true");
       setBtndisplay((prevDisplay) => ({
         ...prevDisplay,
         previous: false,
@@ -86,13 +80,11 @@ const Registration = () => {
     if (value === "Next") {
       setPage((prevPage) => {
         let newPage = prevPage + 1;
-        console.log("New page value after increment:", newPage);
         return newPage;
       });
     } else {
       setPage((prevPage) => {
         let newPage = prevPage - 1;
-        console.log("New page value after increment:", newPage);
         return newPage;
       });
     }
@@ -178,36 +170,32 @@ const Registration = () => {
                 />
                 <br />
               </Forms>
-              <Studentcontext.Provider
-                value={{
-                  updateselected,
-                  part: { category: "categoryName", department: "name" },
-                }}
-              >
+              <Dropdown2
+                options={options}
+                selected={selected.category}
+                allobject={categories}
+                topic={"category"}
+                style={{ position: "fixed", top: "15rem" }}
+                action={updateselected}
+                part={"categoryName"}
+              />
+              {data.category_id !== null && (
                 <Dropdown2
-                  options={options}
-                  selected={selected.category}
-                  allobject={categories}
-                  topic={"category"}
-                  style={{ position: "fixed", top: "15rem" }}
+                  options={deptoption.length > 0 ? deptoption : ["all"]}
+                  selected={selected.department}
+                  allobject={departments}
+                  topic={"department"}
+                  style={{ position: "fixed", top: "25rem" }}
+                  action={updateselected}
+                  part={"name"}
                 />
-                {data.category_id !== null && (
-                  <Dropdown2
-                    options={deptoption.length > 0 ? deptoption : ["all"]}
-                    selected={selected.department}
-                    allobject={departments}
-                    topic={"department"}
-                    style={{ position: "fixed", top: "25rem" }}
-                    action={updateselected}
-                  />
-                )}
-              </Studentcontext.Provider>
+              )}
             </div>
           )}
           {/*content of page 2*/}
           {page === 2 && (
             <div>
-              <Forms>
+              <Forms small={false} error={error}>
                 <Dropdown2
                   options={
                     yearoption.length > 0 ? yearoption : ["no year availble"]
@@ -227,7 +215,9 @@ const Registration = () => {
                       name="sex"
                       value="M"
                       style={{ marginRight: "5px" }}
-                      onChange={(event) => {updatedata(event,"sex")}}
+                      onChange={(event) => {
+                        updatedata(event, "sex");
+                      }}
                       checked={data.sex === "M" ? true : false}
                     />
                     Male
@@ -239,7 +229,9 @@ const Registration = () => {
                       name="sex"
                       value="F"
                       style={{ marginRight: "5px" }}
-                      onChange={(event) => {updatedata(event,"sex")}}
+                      onChange={(event) => {
+                        updatedata(event, "sex");
+                      }}
                       checked={data.sex === "F" ? true : false}
                     />
                     Female
@@ -247,7 +239,15 @@ const Registration = () => {
                 </div>
                 <div className="input-group">
                   <label for="dob">Date of Birth:</label>
-                  <input type="date" id="dob" name="dob" onChange={(event)=>{updatedata(event,"DOB")}} value={data["DOB"]}/>
+                  <input
+                    type="date"
+                    id="dob"
+                    name="dob"
+                    onChange={(event) => {
+                      updatedata(event, "DOB");
+                    }}
+                    value={data["DOB"]}
+                  />
                 </div>
                 <div className="otherinput">
                   <Textinput
@@ -279,4 +279,4 @@ const Registration = () => {
     </div>
   );
 };
-export { Studentcontext, Registration };
+export { categories, departments, Registration };

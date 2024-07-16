@@ -1,10 +1,13 @@
-import {Login} from "./login";
+import { Login } from "./login";
 import { Registration } from "./studentregistration";
+import { Teacheregistration } from "./teacherregistration";
 import { Provider } from "react-redux";
 import { rootReducer } from "./reducer/index";
+import { createContext } from "react";
 import { createStore } from "redux";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 export const store = createStore(rootReducer);
+export const Allcontext = createContext();
 function App() {
   return (
     <Provider store={store}>
@@ -13,6 +16,10 @@ function App() {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/studentregistration" element={<Registration />} />
+            <Route
+              path="/teacheregistration"
+              element={<Teacheregistration />}
+            />
           </Routes>
         </div>
       </Router>

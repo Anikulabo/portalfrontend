@@ -25,7 +25,7 @@ export const onselected = (event, allentries, selected) => {
     const res = detail[selected];
     if (res) {
       //console.log(res);
-      return {res:res,id:detail.id};
+      return { res: res, id: detail.id };
     } else {
       const detailkeys = Object.keys(detail);
       throw new Error(
@@ -136,4 +136,78 @@ export const typechecker = (incomingobject, expectedkeys) => {
 
   return goodkeys;
 };
+export const uniquekeycheck = (obj) => {
+  let usedkeys = [];
 
+  const checkKeys = (object) => {
+    for (const [key, value] of Object.entries(object)) {
+      if (usedkeys.includes(key)) {
+        throw new Error(
+          `The key '${key}' has already been used. All keys should be unique.`
+        );
+      } else {
+        usedkeys.push(key);
+      }
+
+      if (
+        typeof value === "object" &&
+        value !== null &&
+        !Array.isArray(value)
+      ) {
+        checkKeys(value);
+      }
+    }
+  };
+
+  checkKeys(obj);
+  return true; // Indicate successful uniqueness check
+};
+
+export const automatic_obj_update = (obj, value, key) => {
+  try {
+    uniquekeycheck(obj); // This will throw an error if there are duplicate keys
+    if (obj.hasOwnProperty(key)) {
+      return { ...obj, [key]: value };
+    } else {
+      for (const [childkey, childvalue] of Object.entries(obj)) {
+        if (
+          typeof childvalue === "object" &&
+          !Array.isArray(childvalue) &&
+          childvalue !== null
+        ) {
+          if (childvalue.hasOwnProperty(key) && childvalue !== null) {
+             let newobj={ ...obj, [childkey]: { ...obj[childkey], [key]: value } }
+           return newobj
+          }
+        }
+      }
+    }
+
+    /*let updated = false;
+      const newObject = { ...object };
+
+      for (const k in object) {
+        if (typeof object[k] === 'object' && object[k] !== null && !Array.isArray(object[k])) {
+          const result = updateKey(object[k], key, value);
+          if (result !== object[k]) {
+            newObject[k] = result;
+            updated = true;
+          }
+        }
+      }
+
+      if (updated) {
+        return newObject;
+      }
+
+      throw new Error(
+        `The key should be a member of ${Object.keys(object).join(
+          ", "
+        )}. You provided ${key}.`
+      );*/
+  } catch (error) {
+    console.error(error); // Use console.error for errors
+    alert("Unable to update object. See console for details.");
+    return obj; // Return the original object in case of an error
+  }
+};
