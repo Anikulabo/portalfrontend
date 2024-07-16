@@ -10,10 +10,15 @@ const initialstate = {
     sex: "",
     DOB: "",
   },
-  teacherdetail:{
-    fname:"",
-    lname:"",
-    phoneNo:""
+  selected: {
+    category: "Select a category",
+    department: "select a department",
+    year: "select a year",
+  },
+  teacherdetail: {
+    fname: "",
+    lname: "",
+    phoneNo: "",
   },
   messages: [],
   notifications: [],
@@ -30,13 +35,13 @@ export const itemReducer = (state = initialstate, action) => {
   switch (action.type) {
     case UPDATE:
       const { update, ctrl } = action.payload;
-      try{
-        const newstate=automatic_obj_update(state,update,ctrl)
-        return newstate
-      }catch(error){
-        console.error("error:",error)
-        alert("unable to update state.see console for detail")
-        return state
+      try {
+        const newstate = automatic_obj_update(state, update, ctrl);
+        return newstate;
+      } catch (error) {
+        console.error("error:", error);
+        alert("unable to update state.see console for detail");
+        return state;
       }
     default:
       return state;

@@ -9,10 +9,7 @@ export const Teacheregistration = () => {
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [btndisplay, setBtndisplay] = useState({ next: true, previous: false });
-  const [selected, setSelected] = useState({
-    category: "select a category",
-    department: "select a department",
-  });
+  const selected=useSelector((state)=>state.items.selected)
   const teacherdetail = useSelector((state) => state.items.teacherdetail);
   const common = useSelector((state) => state.items.common);
   let error = useSelector((state) => state.items.error);
@@ -51,10 +48,7 @@ export const Teacheregistration = () => {
           res: arg["event"].target.innerText,
         };
       }
-
-      if (selected.hasOwnProperty(arg["type"])) {
-        setSelected({ ...selected, [arg["type"]]: currentselection.res });
-      }
+      dispatch(updateentry(currentselection['res'],arg['type']))
       if (arg["type"] === "category" || arg["type"] === "department") {
         dispatch(updateentry(currentselection["id"], `${arg["type"]}_id`));
       } else {

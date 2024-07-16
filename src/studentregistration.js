@@ -17,11 +17,7 @@ const departments = [
   { id: 3, category_id: 1, name: "commercial" },
 ];
 const Registration = () => {
-  const [selected, setSelected] = useState({
-    category: "select a category",
-    department: "select a department",
-    year: "select a year",
-  });
+  let selected=useSelector((state)=>state.items.selected)
   let [page, setPage] = useState(1);
   const [btndisplay, setBtndisplay] = useState({ next: true, previous: false });
   let dispatch = useDispatch();
@@ -58,9 +54,7 @@ const Registration = () => {
           res: arg["event"].target.innerText,
         };
       }
-      if (selected.hasOwnProperty(arg["type"])) {
-        setSelected({ ...selected, [arg["type"]]: currentselection.res });
-      }
+      dispatch(updateentry(currentselection['res'],arg['type']))
       if (arg["type"] === "category" || arg["type"] === "department") {
         dispatch(updateentry(currentselection["id"], `${arg["type"]}_id`));
       } else {
