@@ -2,6 +2,7 @@ import React, { createContext, useState } from "react";
 import { updateentry } from "./action";
 import { useSelector, useDispatch } from "react-redux";
 import { Textinput, Inputpassword, Forms, Top } from "./components";
+import { automatic_obj_update } from "./components/dependencies";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import exam5 from "./components/img/exam5.jpg";
@@ -12,22 +13,25 @@ function Login() {
   const dispatch = useDispatch();
   let data = useSelector((state) => state.items.userdata);
   let error = useSelector((state) => state.items.error);
-  const [type, setType] = useState(true);
-  const [icon, setIcon] = useState(false);
+  const [type, setType] = useState({ type1: true });
+  const [icon, setIcon] = useState({ icon1: false });
   const addupdate = (event, type) => {
     let value = event.target.value;
     dispatch(updateentry(value, type));
   };
-  const hideicon = (event) => {
+  const hideicon = (event, type) => {
     const control = event.target.value.length;
     if (control > 0) {
-      setIcon(true);
+      let newicon = automatic_obj_update(icon, true, type);
+      setIcon(newicon);
     } else {
-      setIcon(false);
+      let newicon = automatic_obj_update(icon, true, type);
+      setIcon(newicon);
     }
   };
-  const changeType = () => {
-    setType(!type);
+  const changeType = (part) => {
+    let newtype = automatic_obj_update(type, !type[part], part);
+    setType(newtype);
   };
   const leftHalfStyle = {
     height: "100vh",
@@ -67,21 +71,22 @@ function Login() {
         <div className="col-md-6 formholder d-flex align-items-stretch d-sm-none d-md-block">
           <Top content={"Log in"} />
           <Forms small={false} error={error}>
-              <Textinput
-                variable={"UserName"}
-                data={data.username}
-                placeholder={"enter your Username"}
-                action={addupdate}
-                ctrl={"username"}
-              />
-              <Inputpassword
-                variable={"Password"}
-                type={type}
-                placeholder={"type your password"}
-                value={data.password}
-                eyeicon={icon}
-                action={{addupdate,hideicon,changeType}}
-              />
+            <Textinput
+              variable={"UserName"}
+              data={data.username}
+              placeholder={"enter your Username"}
+              action={addupdate}
+              ctrl={"username"}
+            />
+            <Inputpassword
+              variable={"Password"}
+              type={type["type1"]}
+              placeholder={"type your password"}
+              value={data.password}
+              eyeicon={icon["icon1"]}
+              ctrl={{ password: "password", icon: "icon1", type: "type1" }}
+              action={{ addupdate, hideicon, changeType }}
+            />
           </Forms>
           <button
             className="submit-button"

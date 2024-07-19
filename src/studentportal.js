@@ -1,29 +1,38 @@
 import favicon from "./components/img/unaab.jpeg";
 import "./components/top.css";
-import { Button, Header, TeacherCard } from "./components";
+import {
+  Button,
+  Header,
+  TeacherCard,
+  Mainmodal,
+  Inputpassword,
+} from "./components";
+import { automatic_obj_update } from "./components/dependencies";
 import { useEffect, useState } from "react";
 import images from "./components";
 import avatar1 from "./components/img/Avatart1.jpg";
 import { useSelector } from "react-redux";
-const subjects = [
-  { id: 1, name: "physics", teacher: "Mr.Lawal" },
-  { id: 2, name: "chemistry", teacher: "Mrs.Ajibola" },
-  { id: 3, name: "food&nut", teacher: "Miss.Dorcas" },
-  { id: 4, name: "computer", teacher: "Mr.Dele" },
-  { id: 5, name: "biology", teacher: "Mrs.Oluwole" },
-  { id: 6, name: "agric", teacher: "Mr.Azeez" },
-  { id: 7, name: "mathematics", teacher: "Mr.Adewale" },
-  { id: 8, name: "phe", teacher: "Miss.Nike" },
-  { id: 9, name: "history", teacher: "Miss.Esther" },
-  { id: 10, name: "basic_electronics", teacher: "Mr.Ogunniran" },
-  { id: 11, name: "Economics", teacher: "Mr.Fakuti" },
-];
+import { subjects } from "./components/testinput";
 export const Student = () => {
   let [visible, setVisible] = useState(4);
   let [search, setSearch] = useState("");
   const [icondisplay, setIcondisplay] = useState({
     next: true,
     previous: false,
+    formerpassword: false,
+    new_password: false,
+    confirm_password: false,
+  });
+  const [types, setTypes] = useState({
+    formerpassword: true,
+    new_password: true,
+    confirm_password: true,
+  });
+  const [modaldisplay, setModaldisplay] = useState({ changepassword: false });
+  const [passwords, setPasswords] = useState({
+    formerpassword: "",
+    new_password: "",
+    confirm_password: "",
   });
   const notifications = useSelector((state) => state.items.notifications);
   let [visiblesubject, setVisiblesubject] = useState(
@@ -42,6 +51,25 @@ export const Student = () => {
       setIcondisplay({ ...icondisplay, next: false, previous: false });
     }
   }, [visible]);
+  const addupdate = (event, type) => {
+    const value = event.target.value;
+    let newpassword = automatic_obj_update(passwords, value, type);
+    setPasswords(newpassword);
+  };
+  const hideicon = (event, type) => {
+    let check = event.target.value.length;
+    let newicons;
+    if (check > 0) {
+      newicons = automatic_obj_update(icondisplay, true, type);
+    } else {
+      newicons = automatic_obj_update(icondisplay, false, type);
+    }
+    setIcondisplay(newicons);
+  };
+  const changeType = (part) => {
+    let newtypes = automatic_obj_update(types, !types[part], part);
+    setTypes(newtypes);
+  };
   const next = () => {
     if (visible + 4 < subjects.length) {
       setVisible((visible += 4));
@@ -55,10 +83,21 @@ export const Student = () => {
       setVisible(subjects.length);
       setVisiblesubject(
         subjects.filter(
-          (detail) => detail.id <= subjects.length && detail.id > subjects.length - leftover
+          (detail) =>
+            detail.id <= subjects.length &&
+            detail.id > subjects.length - leftover
         )
-      )
+      );
     }
+  };
+  const modalctrl = (ctrl, action) => {
+    let newmodaldisplay;
+    if (action === "close") {
+      newmodaldisplay = automatic_obj_update(modaldisplay, false, ctrl);
+    } else {
+      newmodaldisplay = automatic_obj_update(modaldisplay, true, ctrl);
+    }
+    setModaldisplay(newmodaldisplay);
   };
   const previous = () => {
     const leftover = visible % 4;
@@ -72,6 +111,9 @@ export const Student = () => {
         (detail) => detail.id <= visible && detail.id > visible - 4
       )
     );
+  };
+  let handleUpload = () => {
+    alert("this is the modal for changing password");
   };
   const action = (event) => {
     let value = event.target.value;
@@ -94,6 +136,60 @@ export const Student = () => {
       className="container-fluid full-height-container"
       style={{ overflow: "disable" }}
     >
+      <Mainmodal
+        showModal={modaldisplay["changepassword"]}
+        ctrl={"changepassword"}
+        actions={{
+          control: modalctrl,
+          mainfunction: handleUpload,
+        }}
+        footer={{
+          close: "close",
+          mainfunction: "changepassword",
+          modalcontrolled: "changepassword",
+        }}
+        title="Change password"
+      >
+        <Inputpassword
+          variable={"Former password"}
+          type={types["formerpassword"]}
+          placeholder={"type your previous password"}
+          value={passwords["formerpassword"]}
+          eyeicon={icondisplay["formerpassword"]}
+          action={{ addupdate, hideicon, changeType }}
+          ctrl={{
+            password: "formerpassword",
+            icon: "formerpassword",
+            type: "formerpassword",
+          }}
+        />
+        <Inputpassword
+          variable={"new password"}
+          type={types["new_password"]}
+          placeholder={"type your new password"}
+          value={passwords["new_password"]}
+          eyeicon={icondisplay["new_password"]}
+          action={{ addupdate, hideicon, changeType }}
+          ctrl={{
+            password: "new_password",
+            icon: "new_password",
+            type: "new_password",
+          }}
+        />
+        <Inputpassword
+          variable={"confirm password"}
+          type={types["confirm_password"]}
+          placeholder={"re-type your new password"}
+          value={passwords["confirm_password"]}
+          eyeicon={icondisplay["confirm_password"]}
+          action={{ addupdate, hideicon, changeType }}
+          ctrl={{
+            password: "confirm_password",
+            icon: "confirm_password",
+            type: "confirm_password",
+          }}
+        />
+      </Mainmodal>
       <div className="row h-100">
         <div className="col-2 h-100 bg-dark text-light student-div">
           <div className="inline-container">
@@ -112,7 +208,12 @@ export const Student = () => {
           </div>
           <Button content={"Make payment"} class={"bg-dark"} />
           <Button content={"View Result"} class={"bg-dark"} />
-          <Button content={"Reset Password"} class={"bg-dark"} />
+          <Button
+            content={"Reset Password"}
+            class={"bg-dark"}
+            action={modalctrl}
+            modal={"changepassword"}
+          />
           <Button content={"LogOut"} class={"bg-dark mt-auto"} />
         </div>
         <div className="col-10 h-100">
@@ -121,6 +222,9 @@ export const Student = () => {
             imageSrc={avatar1}
             action={action}
             searchvalue={search}
+            notifications={notifications.filter(
+              (detail) => detail.seen === false
+            )}
           />
           <div className="container-fluid">
             <div className="row">

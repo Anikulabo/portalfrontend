@@ -432,4 +432,25 @@ input[type="radio"]:checked + label {
   right: 10px;
 }
 
+.bell-container {
+  position: relative;
+  display: inline-block;
+}
+
+.circular-div {
+  position: absolute;
+  top: -10px; /* Adjust the position as needed */
+  right: -10px; /* Adjust the position as needed */
+  width: 24px; /* Adjust the size as needed */
+  height: 24px; /* Adjust the size as needed */
+  background-color: red; /* Adjust the color as needed */
+  border-radius: 50%;
+  border: 2px solid white; /* Optional: for a border around the circle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px; /* Adjust the font size as needed */
+  font-weight: bold; /* Optional: for making the text bold */
+}
 

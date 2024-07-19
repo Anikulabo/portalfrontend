@@ -10,8 +10,8 @@ export const Inputpassword = (props) => {
           placeholder={props.placeholder}
           value={props.value}
           onChange={(event) => {
-            props.action.addupdate(event,'password');
-            props.action.hideicon(event);
+            props.action.addupdate(event,props.ctrl['password']);
+            props.action.hideicon(event,props.ctrl['icon']);
           }}
         />
         <i
@@ -20,7 +20,7 @@ export const Inputpassword = (props) => {
             display: props.eyeicon ? "block" : "none",
             marginLeft: "-3rem",
           }}
-          onClick={() => props.action.changeType()}
+          onClick={() => props.action.changeType(props.ctrl['type'])}
         />
       </div>
       <br />

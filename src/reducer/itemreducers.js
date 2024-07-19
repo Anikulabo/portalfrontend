@@ -21,7 +21,11 @@ const initialstate = {
     phoneNo: "",
   },
   messages: [],
-  notifications: [],
+  notifications: [
+    { activity: "you've been proomoted to ss1d", seen: true },
+    { activity: "a new subject was added to your category", seen: false },
+    { activity: "payment for pastquestion recieved", seen: false },
+  ],
   common: {
     category_id: null,
     email: "",

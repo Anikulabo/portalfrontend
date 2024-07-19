@@ -7,6 +7,7 @@ import { Dropdown2 } from "./dropdown";
 import { Button } from "./button";
 import Header from "./header";
 import TeacherCard from "./teachercard";
+import { Mainmodal } from "./allmodal";
 const importAll = (requireContext) => {
   let images = {};
   requireContext.keys().forEach((item, index) => {
@@ -29,4 +30,5 @@ export {
   Button,
   Header,
   TeacherCard,
+  Mainmodal
 };
