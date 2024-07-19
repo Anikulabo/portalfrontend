@@ -194,9 +194,9 @@ const Registration = () => {
                   options={
                     yearoption.length > 0 ? yearoption : ["no year availble"]
                   }
-                  selected={selected.year}
+                  selected={selected['selectedyear']}
                   allobject={null}
-                  topic={"year"}
+                  topic={"selectedyear"}
                   style={{ position: "fixed", top: "10rem" }}
                   action={updateselected}
                 />

@@ -13,7 +13,7 @@ const initialstate = {
   selected: {
     category: "Select a category",
     department: "select a department",
-    year: "select a year",
+    selectedyear: "select a year",
   },
   teacherdetail: {
     fname: "",

@@ -1,6 +1,7 @@
 import { Login } from "./login";
 import { Registration } from "./studentregistration";
 import { Teacheregistration } from "./teacherregistration";
+import { Student } from "./studentportal";
 import { Provider } from "react-redux";
 import { rootReducer } from "./reducer/index";
 import { createContext } from "react";
@@ -20,6 +21,7 @@ function App() {
               path="/teacheregistration"
               element={<Teacheregistration />}
             />
+            <Route path="/studentportal" element={<Student />} />
           </Routes>
         </div>
       </Router>
