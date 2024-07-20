@@ -1,5 +1,7 @@
 import React, { createContext, useState } from "react";
+import axios from "axios";
 import { updateentry } from "./action";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { Textinput, Inputpassword, Forms, Top } from "./components";
 import { automatic_obj_update } from "./components/dependencies";
@@ -7,14 +9,60 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import exam5 from "./components/img/exam5.jpg";
 import favicon from "./components/img/unaab.jpeg";
+import { json } from "react-router-dom";
 const Allcontext = createContext();
 function Login() {
   //const navigate = useNavigate();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   let data = useSelector((state) => state.items.userdata);
   let error = useSelector((state) => state.items.error);
   const [type, setType] = useState({ type1: true });
   const [icon, setIcon] = useState({ icon1: false });
+  const login = async () => {
+    try {
+      // Extract username and password from the data object
+      let regno = data["username"];
+      let password = data["password"];
+      
+      // Send a POST request with the credentials
+      const response = await axios.post(
+        `http://localhost:3001/user`,
+        { regno, password },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      
+      // Update the token
+      updateentry(response.data.token, "token");
+      
+      // Navigate based on the role
+      switch (response.data.role) {
+        case 2: // Teacher's route
+          navigate("/teacherportal", { replace: true });
+          break;
+        case 1: // Admin's route
+          navigate("/admindashboard", { replace: true });
+          break;
+        case 3: // Student's route
+          navigate("/studentportal", { replace: true });
+          break;
+        default:
+          // Handle unexpected role values or default case
+          console.warn("Unexpected role:", response.data.role);
+          break;
+      }
+      
+      // Cleanup any error after successful login
+      updateentry("", "error");
+    } catch (error) {
+      console.error("error:", error);
+  
+      // Ensure error.response and error.response.data are defined before accessing
+      const errorMessage = error.response?.data?.message || "An unexpected error occurred.";
+      dispatch(updateentry(errorMessage, "error"));
+    }
+  };
+  
   const addupdate = (event, type) => {
     let value = event.target.value;
     dispatch(updateentry(value, type));
@@ -70,7 +118,7 @@ function Login() {
         </div>
         <div className="col-md-6 formholder d-flex align-items-stretch d-sm-none d-md-block">
           <Top content={"Log in"} />
-          <Forms small={false} error={error}>
+          <Forms small={true} error={error}>
             <Textinput
               variable={"UserName"}
               data={data.username}
@@ -91,7 +139,7 @@ function Login() {
           <button
             className="submit-button"
             onClick={() => {
-              alert(data.username);
+              login();
             }}
           >
             Login
