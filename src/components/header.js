@@ -24,7 +24,7 @@ const Header = ({
               ? action(event)
               : alert("there is no event for this input for now")
           }
-          value={searchvalue}
+          value={searchvalue?searchvalue:""}
         />
       </div>
       <div

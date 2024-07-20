@@ -454,3 +454,27 @@ input[type="radio"]:checked + label {
   font-weight: bold; /* Optional: for making the text bold */
 }
 
+.custom-modal-body {
+  max-height: 400px; /* Adjust the max height as needed */
+  overflow-y: auto; /* Enables vertical scrolling */
+  padding: 15px; /* Optional: add padding for better spacing */
+  border: 1px solid #ddd; /* Optional: add border for better visibility */
+}
+
+.custom-modal-body table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.custom-modal-body th,
+.custom-modal-body td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.custom-modal-body th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+

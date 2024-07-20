@@ -11,3 +11,14 @@ export const subjects = [
     { id: 10, name: "basic_electronics", teacher: "Mr.Ogunniran" },
     { id: 11, name: "Economics", teacher: "Mr.Fakuti" },
   ];
+  export const studentsession=[
+    {sessionName:"2019/2020",term:"first term",categoryName:"junior",year:2},
+    {sessionName:"2019/2020",term:"second term",categoryName:"junior",year:2},
+    {sessionName:"2019/2020",term:"third term",categoryName:"junior",year:2},
+    {sessionName:"2020/2021",term:"first term",categoryName:"junior",year:3},
+    {sessionName:"2020/2021",term:"second term",categoryName:"junior",year:3},
+    {sessionName:"2020/2021",term:"third term",categoryName:"junior",year:3},
+    {sessionName:"2021/2022",term:"first term",categoryName:"senior",year:1},
+    {sessionName:"2021/2022",term:"second term",categoryName:"senior",year:1},
+    {sessionName:"2021/2022",term:"second term",categoryName:"senior",year:1},
+  ]

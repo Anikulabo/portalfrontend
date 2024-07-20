@@ -7,6 +7,8 @@ import {
   Mainmodal,
   Inputpassword,
 } from "./components";
+import { Splitkey } from "./components/splitkeydisplay";
+import { studentsession } from "./components/testinput";
 import { automatic_obj_update } from "./components/dependencies";
 import { useEffect, useState } from "react";
 import images from "./components";
@@ -28,7 +30,10 @@ export const Student = () => {
     new_password: true,
     confirm_password: true,
   });
-  const [modaldisplay, setModaldisplay] = useState({ changepassword: false });
+  const [modaldisplay, setModaldisplay] = useState({
+    changepassword: false,
+    viewResult: false,
+  });
   const [passwords, setPasswords] = useState({
     formerpassword: "",
     new_password: "",
@@ -38,19 +43,14 @@ export const Student = () => {
   let [visiblesubject, setVisiblesubject] = useState(
     subjects.filter((detail) => detail.id <= visible && detail.id > visible - 4)
   );
+
   useEffect(() => {
-    if (visible === 4) {
-      setIcondisplay({ ...icondisplay, next: true, previous: false });
-    } else if (visible > 4 && visible < subjects.length) {
-      setIcondisplay({ ...icondisplay, next: true, previous: true });
-    }
-    if (visible >= subjects.length) {
-      setIcondisplay({ ...icondisplay, next: false, previous: true });
-    }
-    if (visible < 4) {
-      setIcondisplay({ ...icondisplay, next: false, previous: false });
-    }
-  }, [visible]);
+    setIcondisplay({
+      ...icondisplay,
+      next: visible < subjects.length,
+      previous: visible > 4,
+    });
+  }, [visible, subjects.length]);
   const addupdate = (event, type) => {
     const value = event.target.value;
     let newpassword = automatic_obj_update(passwords, value, type);
@@ -190,6 +190,46 @@ export const Student = () => {
           }}
         />
       </Mainmodal>
+      <Mainmodal
+        showModal={modaldisplay["viewResult"]}
+        ctrl={"viewResult"}
+        actions={{
+          control: modalctrl,
+          mainfunction: handleUpload,
+        }}
+        footer={{
+          close: "close",
+          mainfunction: "viewResult",
+          modalcontrolled: "viewResult",
+        }}
+        title="View Results"
+        bodyClass="custom-modal-body" // Add this line
+      >
+        <table>
+          <thead>
+            <tr>
+              <th>Session Name</th>
+              <th>Term</th>
+              <th>Category Name</th>
+              <th>Year</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {studentsession.map((item, index) => (
+              <tr key={index}>
+                {Object.keys(item).map((key, index) => (
+                  <td key={index}>{item[key]} </td>
+                ))}
+                <td>
+                  <button className="btn btn-primary">View Result</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Mainmodal>
+
       <div className="row h-100">
         <div className="col-2 h-100 bg-dark text-light student-div">
           <div className="inline-container">
@@ -207,7 +247,12 @@ export const Student = () => {
             </p>
           </div>
           <Button content={"Make payment"} class={"bg-dark"} />
-          <Button content={"View Result"} class={"bg-dark"} />
+          <Button
+            content={"View Result"}
+            class={"bg-dark"}
+            action={modalctrl}
+            modal={"viewResult"}
+          />
           <Button
             content={"Reset Password"}
             class={"bg-dark"}
