@@ -107,7 +107,7 @@ export const Teacheregistration = () => {
     <div className="container-fluid h-100" style={{ overflowY: "auto" }}>
       <div className="row h-100">
         <div
-          className="col-md-6 d-flex align-items-stretch d-sm-none d-md-block"
+          className="col-md-6  align-items-stretch  d-none d-sm-block"
           style={leftHalfStyle}
         >
           <div style={redHueStyle}></div>

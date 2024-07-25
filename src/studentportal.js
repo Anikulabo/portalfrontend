@@ -6,18 +6,21 @@ import {
   TeacherCard,
   Mainmodal,
   Inputpassword,
+  renewToken,
 } from "./components";
-import { Splitkey } from "./components/splitkeydisplay";
-import { studentsession } from "./components/testinput";
 import { automatic_obj_update } from "./components/dependencies";
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef } from "react";
 import images from "./components";
 import avatar1 from "./components/img/Avatart1.jpg";
-import { useSelector } from "react-redux";
-import { subjects } from "./components/testinput";
+import { useSelector,useDispatch } from "react-redux";
+import { subjects, studentsession } from "./components/testinput";
 export const Student = () => {
   let [visible, setVisible] = useState(4);
   let [search, setSearch] = useState("");
+  const [isStudentDivVisible, setIsStudentDivVisible] = useState(false);
+  const toggleStudentDiv = () => {
+    setIsStudentDivVisible(!isStudentDivVisible);
+  };
   const [icondisplay, setIcondisplay] = useState({
     next: true,
     previous: false,
@@ -40,17 +43,39 @@ export const Student = () => {
     confirm_password: "",
   });
   const notifications = useSelector((state) => state.items.notifications);
+  const userdata = useSelector((state) => state.items.userdata);
+  const token = useSelector((state) => state.items.token);
   let [visiblesubject, setVisiblesubject] = useState(
     subjects.filter((detail) => detail.id <= visible && detail.id > visible - 4)
   );
-
+  const dispatch=useDispatch()
+  const intervalRef = useRef(null);
   useEffect(() => {
     setIcondisplay({
       ...icondisplay,
       next: visible < subjects.length,
       previous: visible > 4,
     });
-  }, [visible, subjects.length]);
+    if (token !== null) {
+      // Clear the previous interval if it exists
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+
+      // Set up a new interval
+      intervalRef.current = setInterval(
+        () => renewToken(userdata, dispatch),
+        1800000
+      ); // 1 minute
+
+      // Clean up function to clear the interval when component unmounts or dependencies change
+      return () => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+      };
+    }
+  }, [visible, subjects.length,dispatch,token,userdata]);
   const addupdate = (event, type) => {
     const value = event.target.value;
     let newpassword = automatic_obj_update(passwords, value, type);
@@ -130,6 +155,9 @@ export const Student = () => {
       setVisible(0);
     }
     setSearch(value);
+  };
+  const dynamicmargin = {
+    marginTop: "9rem",
   };
   return (
     <div
@@ -229,9 +257,13 @@ export const Student = () => {
           </tbody>
         </table>
       </Mainmodal>
-
       <div className="row h-100">
-        <div className="col-2 h-100 bg-dark text-light student-div">
+        <div
+          className={`col-md-2 h-100 bg-dark text-light student-div d-md-block ${
+            isStudentDivVisible ? "col-sm-12" : "d-none"
+          }`}
+          style={isStudentDivVisible ? dynamicmargin : null}
+        >
           <div className="inline-container">
             <img
               className="round-image"
@@ -241,39 +273,52 @@ export const Student = () => {
             />
             <p>
               FUNAAB
-              <small className="small-text">
+              <small className="small-text d-none d-md-block">
                 Federal University of Agriculture,Abeokuta
+              </small>
+              <small className="small-text d-md-none d-sm-block">
+                Student portal
               </small>
             </p>
           </div>
-          <Button content={"Make payment"} class={"bg-dark"} />
+          <Button
+            content={"Make payment"}
+            class={`bg-dark ${isStudentDivVisible ? "w-100" : ""}`}
+          />
           <Button
             content={"View Result"}
-            class={"bg-dark"}
+            class={`bg-dark ${isStudentDivVisible ? "w-100" : ""}`}
             action={modalctrl}
             modal={"viewResult"}
           />
           <Button
             content={"Reset Password"}
-            class={"bg-dark"}
+            class={`bg-dark ${isStudentDivVisible ? "w-100" : ""}`}
             action={modalctrl}
             modal={"changepassword"}
           />
-          <Button content={"LogOut"} class={"bg-dark mt-auto"} />
+          <Button
+            content={"LogOut"}
+            class={`bg-dark mt-auto ${isStudentDivVisible ? "w-100" : ""}`}
+          />
         </div>
-        <div className="col-10 h-100">
+        <div className="col-md-10 h-100 col-sm-12">
           <Header
             message={"Student portal"}
             imageSrc={avatar1}
-            action={action}
+            action={{ change: action, show: toggleStudentDiv }}
             searchvalue={search}
+            itemctrl={isStudentDivVisible}
             notifications={notifications.filter(
               (detail) => detail.seen === false
             )}
           />
           <div className="container-fluid">
             <div className="row">
-              <div style={{ marginTop: "5rem" }} className="col-6">
+              <div
+                style={{ marginTop: "5rem" }}
+                className="col-6 d-none d-md-block"
+              >
                 <div>Subject teachers:</div>
                 <br />
                 <div className="teacher-card-container">
@@ -299,6 +344,48 @@ export const Student = () => {
                     );
                   })}
                 </div>
+              </div>
+              <div
+                className="col-sm-12 d-sm-block d-md-none"
+                style={{ marginTop: "7rem" }}
+              >
+                <div>Subject teachers:</div>
+                {search.length <= 0
+                  ? subjects.map((item, index) => {
+                      return (
+                        <div key={index} className="user-container mt-3">
+                          <img
+                            className="teacher-image-small"
+                            src={images[`${item["name"]}.jpg`]}
+                            alt={item["name"]}
+                          />
+                          <div>
+                            <p className="user-name">{item["teacher"]}</p>
+                            <p className="user-class">{item["name"]}</p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  : subjects
+                      .filter(
+                        (detail) =>
+                          detail["name"].slice(0, search.length) === search
+                      )
+                      .map((item, index) => {
+                        return (
+                          <div key={index} className="user-container mt-3">
+                            <img
+                              className="teacher-image-small"
+                              src={images[`${item["name"]}.jpg`]}
+                              alt={item["name"]}
+                            />
+                            <div>
+                              <p className="user-name">{item["teacher"]}</p>
+                              <p className="user-class">{item["name"]}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
               </div>
             </div>
           </div>

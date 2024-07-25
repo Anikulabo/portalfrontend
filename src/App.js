@@ -10,6 +10,7 @@ import { createStore } from "redux";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 export const store = createStore(rootReducer);
 export const Allcontext = createContext();
+
 function App() {
   return (
     <Provider store={store}>
@@ -18,10 +19,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/studentregistration" element={<Registration />} />
-            <Route
-              path="/teacheregistration"
-              element={<Teacheregistration />}
-            />
+            <Route path="/teacheregistration" element={<Teacheregistration />} />
             <Route path="/studentportal" element={<Student />} />
             <Route path="/teacherportal" element={<TeacherPortal />} />
           </Routes>

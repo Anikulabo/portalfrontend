@@ -4,7 +4,7 @@ export const Textinput = (props) => {
         {props.variable} <br />
         <input
           type="text"
-          className="data"
+          className="w-100 data"
           placeholder={props.placeholder}
           value={props.username}
           onChange={(event) =>

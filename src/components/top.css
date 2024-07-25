@@ -14,9 +14,6 @@
 }
 
 .submit-button {
-  position: absolute;
-  bottom: 200px; /* Adjust the value to be very close to the bottom */
-  left: 50%;
   transform: translateX(-50%);
   width: 90%;
   border-radius: 15px; /* Adjust the value for rounded corners */
@@ -115,10 +112,15 @@ input[type="radio"]:checked + label {
     background-repeat: no-repeat;
     opacity: 0.3; /* Adjust opacity if needed */
   }
-
+  
   input[type="radio"]:checked + label::before {
     display: block;
   }
+}
+.user-container {
+  display: flex;
+  align-items: center; /* Align items vertically in the center */
+  margin-bottom: 10px; /* Space between items, adjust as needed */
 }
 .description-container {
   display: flex;
@@ -312,6 +314,9 @@ input[type="radio"]:checked + label {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 1000; /* Ensure the header is always on top */
 }
+.custom-margin-top {
+  margin-top: 5rem; /* Adjust this value as needed */
+}
 
 .header-message {
   font-size: 18px;
@@ -321,10 +326,19 @@ input[type="radio"]:checked + label {
 
 .search-container {
   position: relative;
-  flex-grow: 1;
+  flex-grow: 2;
   margin: 0 15px;
 }
-
+.small-screen{
+  position: relative;
+  width: 70%;
+  margin: 0 15px
+}
+.other-smalls-screen{
+  display: flex;
+  align-items: center;
+  width: 25%;
+}
 .search-icon {
   position: absolute;
   top: 50%;
@@ -342,7 +356,6 @@ input[type="radio"]:checked + label {
 }
 
 .others {
-  display: flex;
   align-items: center;
   flex-grow: 1;
 }
@@ -371,7 +384,11 @@ input[type="radio"]:checked + label {
   font-size: 16px;
   color: #888;
 }
-
+.user-name, .user-class {
+  margin: 0; /* Remove default margin */
+  line-height: 1.2; /* Adjust line height if needed */
+  margin-left: 10px;
+}
 .header-image {
   width: 40px;
   height: 40px;
@@ -401,7 +418,13 @@ input[type="radio"]:checked + label {
   object-fit: cover;
   margin-bottom: 10px;
 }
-
+.teacher-image-small {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
 .teacher-name {
   font-size: 18px;
   font-weight: bold;
@@ -476,5 +499,28 @@ input[type="radio"]:checked + label {
 .custom-modal-body th {
   background-color: #f2f2f2;
   font-weight: bold;
+}
+
+.card-custom {
+  width: 20%; /* Adjust the width as needed */
+  border-radius: 0.5rem;
+}
+
+.card-img-top {
+  height: 50%; /* Takes half of the card's height */
+  object-fit: cover;
+}
+
+.card-body {
+  padding: 0.5rem; /* Adjust padding for a more compact card */
+}
+
+.card-title {
+  font-size: 1.25rem; /* Adjust font size if necessary */
+}
+
+.card-year {
+  font-size: 0.875rem; /* Adjust font size for the year */
+  color: #6c757d; /* Optional: For a lighter color */
 }
 

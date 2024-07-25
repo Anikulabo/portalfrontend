@@ -2,13 +2,31 @@ import favicon from "./components/img/unaab.jpeg";
 import { Header, Button } from "./components";
 import avatar1 from "./components/img/Avatart1.jpg";
 import "./components/top.css";
+import { teacherSubject } from "./components/testinput";
+import images from "./components";
+import { CardComponent } from "./components";
 import { useSelector } from "react-redux";
 export const TeacherPortal = () => {
   const notifications = useSelector((state) => state.items.notifications);
+  let allcategories = teacherSubject.map((item) => {
+    return item.categoryName;
+  });
+  let uniquecategory = [...new Set(allcategories)];
+  const rearrangement = {};
+  for (const Category of uniquecategory) {
+    let subject_in_category = teacherSubject
+      .filter((detail) => detail.categoryName === Category)
+      .map((item) => {
+        let { name, year } = item;
+        return { name, year };
+      });
+    rearrangement[Category] = subject_in_category;
+  }
+  console.log(rearrangement);
   return (
     <div
       className="container-fluid full-height-container"
-      style={{ overflow: "disable" }}
+      style={{ overflow: "hidden" }}
     >
       <div className="row h-100">
         <div className="col-2 h-100 bg-dark text-light student-div">
@@ -26,12 +44,10 @@ export const TeacherPortal = () => {
               </small>
             </p>
           </div>
-          <Button content={"add result"} class={"bg-dark"} />
           <Button content={"Take Attendance"} class={"bg-dark"} />
           <Button content="Exam Prep" class={"bg-dark"} />
           <Button content="add E-book" class={"bg-dark"} />
-          <Button content={"View Result"} class={"bg-dark"} />
-          <Button content={"Reset Password"} class={"bg-dark"}/>
+          <Button content={"Reset Password"} class={"bg-dark"} />
           <Button content={"LogOut"} class={"bg-dark mt-auto"} />
         </div>
         <div className="col-10 h-100">
@@ -43,7 +59,43 @@ export const TeacherPortal = () => {
             )}
           />
           <div className="container-fluid">
-            <div className="row"></div>
+            <div
+              className="row"
+              style={{ marginTop: "8rem", overflowY: "auto" }}
+            >
+              {uniquecategory.map((detail) => {
+                return (
+                  <div className="container-fluid">
+                    <div className="row">
+                      <div className="col-12">
+                        <h4
+                          style={{
+                            textTransform: "capitalize",
+                            fontWeight: "bolder",
+                          }}
+                        >
+                          {" "}
+                          {detail} category:
+                        </h4>
+                      </div>
+                      {rearrangement[detail].map((item, index) => (
+                        <div
+                          key={index}
+                          className="col-sm-6 col-md-4 col-lg-3 d-flex align-items-stretch"
+                        >
+                          <CardComponent
+                            imageSrc={images[`${item["name"]}.jpg`]}
+                            name={item["name"]}
+                            year={item["year"]}
+                            className="card-component"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

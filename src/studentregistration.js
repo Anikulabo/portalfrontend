@@ -1,10 +1,9 @@
-import { useState,  useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { objectreducer, onselected } from "./components/dependencies";
 import { updateentry } from "./action";
 import exam4 from "./components/img/exam4.jpg";
 import { Top, Textinput, Forms, Bottom, Dropdown2 } from "./components";
-
 const categories = [
   { id: 1, categoryName: "senior", years: 3 },
   { id: 2, categoryName: "basic", years: 6 },
@@ -17,7 +16,7 @@ const departments = [
   { id: 3, category_id: 1, name: "commercial" },
 ];
 const Registration = () => {
-  let selected=useSelector((state)=>state.items.selected)
+  let selected = useSelector((state) => state.items.selected);
   let [page, setPage] = useState(1);
   const [btndisplay, setBtndisplay] = useState({ next: true, previous: false });
   let dispatch = useDispatch();
@@ -54,7 +53,7 @@ const Registration = () => {
           res: arg["event"].target.innerText,
         };
       }
-      dispatch(updateentry(currentselection['res'],arg['type']))
+      dispatch(updateentry(currentselection["res"], arg["type"]));
       if (arg["type"] === "category" || arg["type"] === "department") {
         dispatch(updateentry(currentselection["id"], `${arg["type"]}_id`));
       } else {
@@ -136,13 +135,13 @@ const Registration = () => {
     <div className="container-fluid h-100" style={{ overflowY: "auto" }}>
       <div className="row h-100">
         <div
-          className="col-md-6 d-md-block   d-flex align-items-stretch"
+          className="col-md-6  align-items-stretch  d-none d-sm-block"
           style={leftHalfStyle}
         >
           <div style={redHueStyle}></div>
           {/* Content for the left half */}
         </div>
-        <div className="col-md-6 d-sm-none d-md-block formholder d-flex align-items-stretch">
+        <div className="formholder d-flex align-items-stretch  d-md-block position-relative h-100 min-vh-100 col-sm-12 col-md-6">
           <Top content={"Registration"} />
           {/* content of page 1 */}
           {page === 1 && (
@@ -194,7 +193,7 @@ const Registration = () => {
                   options={
                     yearoption.length > 0 ? yearoption : ["no year availble"]
                   }
-                  selected={selected['selectedyear']}
+                  selected={selected["selectedyear"]}
                   allobject={null}
                   topic={"selectedyear"}
                   style={{ position: "fixed", top: "10rem" }}

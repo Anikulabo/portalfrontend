@@ -2,7 +2,7 @@ import { UPDATE } from "../action/type";
 import { automatic_obj_update } from "../components/dependencies";
 const initialstate = {
   token: null,
-  userdata: { username: "", role: 0, password: "" },
+  userdata: { username: "", role: 0, password: "",userid:0 },
   error: "",
   studentdetail: {
     first_name: "",

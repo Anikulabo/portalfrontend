@@ -7,6 +7,8 @@ import { Dropdown2 } from "./dropdown";
 import { Button } from "./button";
 import Header from "./header";
 import TeacherCard from "./teachercard";
+import CardComponent from "./cardcomponent";
+import {renewToken} from "./useTokenRenewal";
 import { Mainmodal } from "./allmodal";
 const importAll = (requireContext) => {
   let images = {};
@@ -30,5 +32,7 @@ export {
   Button,
   Header,
   TeacherCard,
-  Mainmodal
+  Mainmodal,
+  CardComponent,
+  renewToken
 };

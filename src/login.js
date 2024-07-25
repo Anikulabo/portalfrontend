@@ -4,12 +4,11 @@ import { updateentry } from "./action";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { Textinput, Inputpassword, Forms, Top } from "./components";
-import { automatic_obj_update } from "./components/dependencies";
+import { automatic_obj_update, objectreducer } from "./components/dependencies";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import exam5 from "./components/img/exam5.jpg";
 import favicon from "./components/img/unaab.jpeg";
-import { json } from "react-router-dom";
 const Allcontext = createContext();
 function Login() {
   //const navigate = useNavigate();
@@ -24,19 +23,20 @@ function Login() {
       // Extract username and password from the data object
       let regno = data["username"];
       let password = data["password"];
-      
+
       // Send a POST request with the credentials
       const response = await axios.post(
         `http://localhost:3001/user`,
         { regno, password },
         { headers: { "Content-Type": "application/json" } }
       );
-      
+
       // Update the token
-      updateentry(response.data.token, "token");
-      
+      dispatch(updateentry(response.data["token"], "token"));
+      dispatch(updateentry(response.data.userdetail["role"], "role"));
+      dispatch(updateentry(response.data.userdetail["userid"], "userid"));
       // Navigate based on the role
-      switch (response.data.role) {
+      switch (response.data.userdetail["role"]) {
         case 2: // Teacher's route
           navigate("/teacherportal", { replace: true });
           break;
@@ -51,18 +51,19 @@ function Login() {
           console.warn("Unexpected role:", response.data.role);
           break;
       }
-      
+
       // Cleanup any error after successful login
-      updateentry("", "error");
+      dispatch(updateentry("", "error"));
     } catch (error) {
       console.error("error:", error);
-  
+
       // Ensure error.response and error.response.data are defined before accessing
-      const errorMessage = error.response?.data?.message || "An unexpected error occurred.";
+      const errorMessage =
+        error.response?.data?.message || "An unexpected error occurred.";
       dispatch(updateentry(errorMessage, "error"));
     }
   };
-  
+
   const addupdate = (event, type) => {
     let value = event.target.value;
     dispatch(updateentry(value, type));
@@ -73,7 +74,7 @@ function Login() {
       let newicon = automatic_obj_update(icon, true, type);
       setIcon(newicon);
     } else {
-      let newicon = automatic_obj_update(icon, true, type);
+      let newicon = automatic_obj_update(icon, false, type);
       setIcon(newicon);
     }
   };
@@ -100,7 +101,7 @@ function Login() {
     <div className="container-fluid h-100" style={{ overflowY: "auto" }}>
       <div className="row h-100">
         <div
-          className="col-md-6 d-flex align-items-stretch d-sm-none d-md-block"
+          className="col-md-6  align-items-stretch  d-none d-sm-block"
           style={leftHalfStyle}
         >
           <div style={redHueStyle}></div>
@@ -116,7 +117,7 @@ function Login() {
             </div>
           </div>
         </div>
-        <div className="col-md-6 formholder d-flex align-items-stretch d-sm-none d-md-block">
+        <div className="col-md-6 formholder d-flex align-items-stretch d-sm-none d-md-block position-relative h-100 min-vh-100">
           <Top content={"Log in"} />
           <Forms small={true} error={error}>
             <Textinput
@@ -137,7 +138,7 @@ function Login() {
             />
           </Forms>
           <button
-            className="submit-button"
+            className="submit-button position-absolute bottom-0 start-50 translate-middle-x w-75 mb-3"
             onClick={() => {
               login();
             }}
@@ -145,10 +146,6 @@ function Login() {
             Login
           </button>
         </div>
-        <div
-          className="col-sm-12 d-md-none d-sm-block d-flex align-items-stretch"
-          style={{ backgroundColor: "rgba(0, 128, 0, 0.5)", height: "100vh" }}
-        ></div>
       </div>
     </div>
   );
