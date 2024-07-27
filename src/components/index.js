@@ -10,6 +10,7 @@ import TeacherCard from "./teachercard";
 import CardComponent from "./cardcomponent";
 import {renewToken} from "./useTokenRenewal";
 import { Mainmodal } from "./allmodal";
+import Sidebar from "./adminsidebar";
 const importAll = (requireContext) => {
   let images = {};
   requireContext.keys().forEach((item, index) => {
@@ -18,10 +19,13 @@ const importAll = (requireContext) => {
   return images;
 };
 
-const images = importAll(
-  require.context("./img/teachers", false, /\.(png|jpe?g|svg)$/)
+const Subjectimages = importAll(
+  require.context("./img/subjects", false, /\.(png|jpe?g|svg)$/)
 );
-export default images;
+const Usersimages=importAll(
+  require.context("./img/users", false, /\.(png|jpe?g|svg)$/)
+);
+export default Subjectimages;
 export {
   Textinput,
   Inputpassword,
@@ -34,5 +38,7 @@ export {
   TeacherCard,
   Mainmodal,
   CardComponent,
-  renewToken
+  renewToken,
+  Sidebar,
+  Usersimages
 };

@@ -48,7 +48,7 @@ const Header = ({
       >
         <div className="bell-container" style={{ position: "relative" }}>
           <i className="fas fa-bell fa-2x"></i>
-          {notifications.length && (
+          {notifications && (
             <div className="circular-div">{notifications.length}</div>
           )}
         </div>

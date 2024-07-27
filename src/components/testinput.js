@@ -75,3 +75,29 @@ export const teacherSubject = [
   { name: "basic_electronics", categoryName: "senior", year: 1 },
   { name: "chemistry", categoryName: "senior", year: 2 },
 ];
+export const all_students = [
+  { first_name: "kelvin", last_name: "Peters", regNo: "20190101" },
+  { first_name: "wilson", last_name: "Peters", regNo: "20190102" },
+  { first_name: "mary", last_name: "Johnson", regNo: "20190103" },
+  { first_name: "james", last_name: "Brown", regNo: "20190104" },
+  { first_name: "patricia", last_name: "Williams", regNo: "20190105" },
+  { first_name: "robert", last_name: "Jones", regNo: "20190106" },
+  { first_name: "jennifer", last_name: "Garcia", regNo: "20190107" },
+  { first_name: "micheal", last_name: "Miller", regNo: "20190108" },
+  { first_name: "linda", last_name: "Davis", regNo: "20190109" },
+  { first_name: "david", last_name: "Martinez", regNo: "20190110" }
+];
+export const all_teachers = [
+  { fname: "oladele", lname: "Godfrey", Staff_id: "20191" },
+  { fname: "agboke", lname: "Elizabeth", Staff_id: "20192" },
+  { fname: "samuel", lname: "Johnson", Staff_id: "20193" },
+  { fname: "grace", lname: "Smith", Staff_id: "20194" },
+  { fname: "christopher", lname: "Williams", Staff_id: "20195" },
+  { fname: "jessica", lname: "Brown", Staff_id: "20196" },
+  { fname: "daniel", lname: "Davis", Staff_id: "20197" },
+  { fname: "sophia", lname: "Martinez", Staff_id: "20198" },
+  { fname: "matthew", lname: "Garcia", Staff_id: "20199" },
+  { fname: "emma", lname: "Miller", Staff_id: "20200" }
+];
+
+

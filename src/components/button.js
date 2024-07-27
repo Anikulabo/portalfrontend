@@ -8,12 +8,15 @@ export const Button = (props) => {
       }
       style={props.style}
       onClick={(event) => {
-        props.action&&props.modal
-          ? props.action(props['modal'],"open")
+        props.action && props.modal
+          ? props.action(props["modal"], "open")
           : alert("there is no action assigned to this button for now");
       }}
     >
-      {props.content}
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <i className={props["iconclass"]} style={{ marginRight: "10px" }} />
+        {props.content}
+      </div>
     </button>
   );
 };

@@ -3,7 +3,7 @@ import { Header, Button } from "./components";
 import avatar1 from "./components/img/Avatart1.jpg";
 import "./components/top.css";
 import { teacherSubject } from "./components/testinput";
-import images from "./components";
+import Subjectimages from "./components";
 import { CardComponent } from "./components";
 import { useSelector } from "react-redux";
 export const TeacherPortal = () => {
@@ -44,11 +44,31 @@ export const TeacherPortal = () => {
               </small>
             </p>
           </div>
-          <Button content={"Take Attendance"} class={"bg-dark"} />
-          <Button content="Exam Prep" class={"bg-dark"} />
-          <Button content="add E-book" class={"bg-dark"} />
-          <Button content={"Reset Password"} class={"bg-dark"} />
-          <Button content={"LogOut"} class={"bg-dark mt-auto"} />
+          <Button
+            content={"Take Attendance"}
+            class={"bg-dark"}
+            iconclass={"fas fa-calendar-check"}
+          />
+          <Button
+            content="Exam Prep"
+            class={"bg-dark"}
+            iconclass={"fas fa-calendar-check"}
+          />
+          <Button
+            content="add E-book"
+            class={"bg-dark"}
+            iconclass={"fas fa-clipboard"}
+          />
+          <Button
+            content={"Reset Password"}
+            class={"bg-dark"}
+            iconclass={"fas fa-unlock-alt"}
+          />
+          <Button
+            content={"LogOut"}
+            class={"bg-dark mt-auto"}
+            iconclass={"fas fa-sign-out-alt"}
+          />
         </div>
         <div className="col-10 h-100">
           <Header
@@ -84,7 +104,7 @@ export const TeacherPortal = () => {
                           className="col-sm-6 col-md-4 col-lg-3 d-flex align-items-stretch"
                         >
                           <CardComponent
-                            imageSrc={images[`${item["name"]}.jpg`]}
+                            imageSrc={Subjectimages[`${item["name"]}.jpg`]}
                             name={item["name"]}
                             year={item["year"]}
                             className="card-component"

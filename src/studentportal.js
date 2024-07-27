@@ -9,10 +9,10 @@ import {
   renewToken,
 } from "./components";
 import { automatic_obj_update } from "./components/dependencies";
-import { useEffect, useState,useRef } from "react";
-import images from "./components";
+import { useEffect, useState, useRef } from "react";
+import Subjectimages from "./components";
 import avatar1 from "./components/img/Avatart1.jpg";
-import { useSelector,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { subjects, studentsession } from "./components/testinput";
 export const Student = () => {
   let [visible, setVisible] = useState(4);
@@ -48,7 +48,7 @@ export const Student = () => {
   let [visiblesubject, setVisiblesubject] = useState(
     subjects.filter((detail) => detail.id <= visible && detail.id > visible - 4)
   );
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
   const intervalRef = useRef(null);
   useEffect(() => {
     setIcondisplay({
@@ -75,7 +75,7 @@ export const Student = () => {
         }
       };
     }
-  }, [visible, subjects.length,dispatch,token,userdata]);
+  }, [visible, subjects.length, dispatch, token, userdata]);
   const addupdate = (event, type) => {
     const value = event.target.value;
     let newpassword = automatic_obj_update(passwords, value, type);
@@ -284,22 +284,26 @@ export const Student = () => {
           <Button
             content={"Make payment"}
             class={`bg-dark ${isStudentDivVisible ? "w-100" : ""}`}
+            iconclass={"fas fa-credit-card"}
           />
           <Button
             content={"View Result"}
             class={`bg-dark ${isStudentDivVisible ? "w-100" : ""}`}
             action={modalctrl}
             modal={"viewResult"}
+            iconclass={"fas fa-chart-bar"}
           />
           <Button
             content={"Reset Password"}
             class={`bg-dark ${isStudentDivVisible ? "w-100" : ""}`}
             action={modalctrl}
             modal={"changepassword"}
+            iconclass={"fas fa-unlock-alt"}
           />
           <Button
             content={"LogOut"}
             class={`bg-dark mt-auto ${isStudentDivVisible ? "w-100" : ""}`}
+            iconclass={"fas fa-sign-out-alt"}
           />
         </div>
         <div className="col-md-10 h-100 col-sm-12">
@@ -336,7 +340,7 @@ export const Student = () => {
                     return (
                       <span key={index}>
                         <TeacherCard
-                          imageSrc={images[`${subject["name"]}.jpg`]}
+                          imageSrc={Subjectimages[`${subject["name"]}.jpg`]}
                           teacherName={subject["teacher"]}
                           subjectName={subject["name"]}
                         />
@@ -356,7 +360,7 @@ export const Student = () => {
                         <div key={index} className="user-container mt-3">
                           <img
                             className="teacher-image-small"
-                            src={images[`${item["name"]}.jpg`]}
+                            src={Subjectimages[`${item["name"]}.jpg`]}
                             alt={item["name"]}
                           />
                           <div>
@@ -376,7 +380,7 @@ export const Student = () => {
                           <div key={index} className="user-container mt-3">
                             <img
                               className="teacher-image-small"
-                              src={images[`${item["name"]}.jpg`]}
+                              src={Subjectimages[`${item["name"]}.jpg`]}
                               alt={item["name"]}
                             />
                             <div>
