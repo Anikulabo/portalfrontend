@@ -8,8 +8,10 @@ import { Button } from "./button";
 import Header from "./header";
 import TeacherCard from "./teachercard";
 import CardComponent from "./cardcomponent";
-import {renewToken} from "./useTokenRenewal";
+import Personal from "./personalinformation";
+import { renewToken } from "./useTokenRenewal";
 import { Mainmodal } from "./allmodal";
+import ProfileTable from "./profiletable";
 import Sidebar from "./adminsidebar";
 const importAll = (requireContext) => {
   let images = {};
@@ -22,7 +24,7 @@ const importAll = (requireContext) => {
 const Subjectimages = importAll(
   require.context("./img/subjects", false, /\.(png|jpe?g|svg)$/)
 );
-const Usersimages=importAll(
+const Usersimages = importAll(
   require.context("./img/users", false, /\.(png|jpe?g|svg)$/)
 );
 export default Subjectimages;
@@ -40,5 +42,7 @@ export {
   CardComponent,
   renewToken,
   Sidebar,
-  Usersimages
+  Usersimages,
+  ProfileTable,
+  Personal
 };

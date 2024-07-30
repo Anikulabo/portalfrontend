@@ -2,7 +2,7 @@ import favicon from "./img/unaab.jpeg";
 import React, { useState } from "react";
 import { Nav } from "react-bootstrap";
 import "./top.css";
-const Sidebar = ({ items, handleButtonClick, active }) => {
+const Sidebar = ({ items, handleButtonClick, active,value }) => {
   return (
     <div className="bg-light col-md-2 bg-light sidebar">
       <div className="inline-container">
@@ -27,7 +27,7 @@ const Sidebar = ({ items, handleButtonClick, active }) => {
                 className={`nav-link w-100 ${
                  item===active ? "active" : ""
                 }`}
-                onClick={() => handleButtonClick(item)}
+                onClick={() => handleButtonClick(item,value)}
               >
                 {item}
               </Nav.Link>

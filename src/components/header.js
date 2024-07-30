@@ -44,7 +44,7 @@ const Header = ({
       </div>
       <div
         className="others d-none d-md-block"
-        style={{ marginLeft: "15px", position: "relative" }}
+        style={{ marginLeft: "10rem", position: "relative" }}
       >
         <div className="bell-container" style={{ position: "relative" }}>
           <i className="fas fa-bell fa-2x"></i>

@@ -166,8 +166,13 @@ export const uniquekeycheck = (obj) => {
 export const automatic_obj_update = (obj, value, key) => {
   try {
     uniquekeycheck(obj); // This will throw an error if there are duplicate keys
+
     if (obj.hasOwnProperty(key)) {
-      return { ...obj, [key]: value };
+      if (Array.isArray(obj[key])) {
+        return { ...obj, [key]: [...obj[key], value] };
+      } else {
+        return { ...obj, [key]: value };
+      }
     } else {
       for (const [childkey, childvalue] of Object.entries(obj)) {
         if (
@@ -175,15 +180,24 @@ export const automatic_obj_update = (obj, value, key) => {
           !Array.isArray(childvalue) &&
           childvalue !== null
         ) {
-          if (childvalue.hasOwnProperty(key) && childvalue !== null) {
-             let newobj={ ...obj, [childkey]: { ...obj[childkey], [key]: value } }
-           return newobj
+          if (childvalue.hasOwnProperty(key)) {
+            return {
+              ...obj,
+              [childkey]: { ...childvalue, [key]: value },
+            };
           }
         }
       }
     }
 
-    /*let updated = false;
+    // If key is not found, add it at the top level
+    return { ...obj, [key]: value };
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+
+/*let updated = false;
       const newObject = { ...object };
 
       for (const k in object) {
@@ -205,9 +219,3 @@ export const automatic_obj_update = (obj, value, key) => {
           ", "
         )}. You provided ${key}.`
       );*/
-  } catch (error) {
-    console.error(error); // Use console.error for errors
-    alert("Unable to update object. See console for details.");
-    return obj; // Return the original object in case of an error
-  }
-};
