@@ -1,7 +1,7 @@
 const Personal = ({imageSrc,testData}) => {
   return (
     <div
-      className="col-5"
+      className="col-7"
       style={{
         maxHeight: "75vh",
         marginTop: "7rem",
@@ -41,10 +41,10 @@ const Personal = ({imageSrc,testData}) => {
         <h5 style={{ fontWeight: "bolder" }}>Basic Detail</h5>
         {Object.keys(testData)
           .filter((item) => item !== "first_name" && item !== "last_name"&&item!=="id")
-          .map((detail) => {
+          .map((detail,index) => {
             return (
-              <p>
-                <span style={{ color: "gray" }}>{detail} :</span>{" "}
+              <p key={index}>
+                <span  style={{ color: "gray" }}>{detail} :</span>{" "}
                 {testData[detail]}
               </p>
             );

@@ -65,9 +65,8 @@ export const Student = () => {
       // Set up a new interval
       intervalRef.current = setInterval(
         () => renewToken(userdata, dispatch),
-        1800000
+        60000
       ); // 1 minute
-
       // Clean up function to clear the interval when component unmounts or dependencies change
       return () => {
         if (intervalRef.current) {

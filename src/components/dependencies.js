@@ -1,3 +1,5 @@
+import axios from 'axios';
+import { store } from '..';
 export const objectreducer = (prev, usefulkeys) => {
   // Check if argument is a non null object
   if (typeof prev !== "object" || prev === null || !Array.isArray(usefulkeys)) {
@@ -196,6 +198,31 @@ export const automatic_obj_update = (obj, value, key) => {
     console.error("Error:", error);
   }
 };
+// Create an instance of axios
+const axiosInstance = axios.create({
+  baseURL: 'http://localhost:3001', // replace with your API's base URL
+});
+
+// Add a request interceptor to include the token in the headers
+axiosInstance.interceptors.request.use(
+  (config) => {
+    // Get the token from local storage or state
+    const token = store.getState().token;
+
+    if (token) {
+      // Add the token to the headers
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    // Handle the error
+    return Promise.reject(error);
+  }
+);
+
+export default axiosInstance;
 
 /*let updated = false;
       const newObject = { ...object };
