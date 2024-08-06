@@ -75,6 +75,13 @@ export const teacherSubject = [
   { name: "basic_electronics", categoryName: "senior", year: 1 },
   { name: "chemistry", categoryName: "senior", year: 2 },
 ];
+export const sessions = [
+  { id: 1, sessionName: "2019/2020" },
+  { id: 2, sessionName: "2020/2021" },
+  { id: 3, sessionName: "2021/2022" },
+  { id: 4, sessionName: "2022/2023" },
+  { id: 5, sessionName: "2023/2024" },
+];
 export const all_students = [
   { id: 1, first_name: "kelvin", last_name: "Peters", regNo: "20190101" },
   { id: 2, first_name: "wilson", last_name: "Peters", regNo: "20190102" },
@@ -86,6 +93,18 @@ export const all_students = [
   { id: 8, first_name: "micheal", last_name: "Miller", regNo: "20190108" },
   { id: 9, first_name: "linda", last_name: "Davis", regNo: "20190109" },
   { id: 10, first_name: "david", last_name: "Martinez", regNo: "20190110" },
+];
+export const classes = [
+  { id: 1, name: "jSS1" },
+  { id: 2, name: "jSS2" },
+  { id: 3, name: "jSS3" },
+  { id: 4, name: "SSS1A" },
+  { id: 5, name: "SSS1B" },
+  { id: 6, name: "SSS1C" },
+  { id: 7, name: "SSS2A1" },
+  { id: 8, name: "SSS2A2" },
+  { id: 9, name: "SSS2B" },
+  { id: 10, name: "SSS2c" },
 ];
 export const all_teachers = [
   { id: 1, fname: "oladele", lname: "Godfrey", Staff_id: "20191" },
@@ -106,8 +125,8 @@ export const categories = [
 ];
 export const departments = [
   { id: 1, category_id: 3, name: "science" },
-  { id: 1, category_id: 3, name: "art" },
-  { id: 1, category_id: 3, name: "commercial" },
+  { id: 2, category_id: 3, name: "art" },
+  { id: 3, category_id: 3, name: "commercial" },
 ];
 export const mockData = [
   {
@@ -265,5 +284,126 @@ export const mockData = [
     session: "2020/2021",
   },
 ];
-
+export const Teacher_mock_data = [
+  {
+    id: 1,
+    teacherDetail: {
+      fname: "oladele",
+      lname: "Godfrey",
+      email: "Godfrey@example.com",
+      phoneNo: "08061283346",
+      address: "789 Oak St, Sometown, USA",
+    },
+    subjects: 2,
+    handling: "JSS1",
+  },
+  {
+    id: 2,
+    teacherDetail: {
+      fname: "agboke",
+      lname: "Elizabeth",
+      email: "Elizabeth@example.com",
+      phoneNo: "08061283346",
+      address: "789 Oak St, Sometown, USA",
+    },
+    subjects: 1,
+    handling: "JSS2",
+  },
+  {
+    id: 3,
+    teacherDetail: {
+      fname: "samuel",
+      lname: "Johnson",
+      email: "Johnson@example.com",
+      phoneNo: "08061283346",
+      address: "789 Oak St, Sometown, USA",
+    },
+    subjects: 1,
+    handling: "JSS3",
+  },
+  {
+    id: 4,
+    teacherDetail: {
+      fname: "grace",
+      lname: "Smith",
+      email: "Smith@example.com",
+      phoneNo: "08061283346",
+      address: "789 Oak St, Sometown, USA",
+    },
+    subjects: 1,
+    handling: "SSS1A",
+  },
+  {
+    id: 5,
+    teacherDetail: {
+      fname: "christopher",
+      lname: "Williams",
+      email: "Williams@example.com",
+      phoneNo: "08061283346",
+      address: "789 Oak St, Sometown, USA",
+    },
+    subjects: 1,
+    handling: "SSS1B",
+  },
+  {
+    id: 6,
+    teacherDetail: {
+      fname: "jessica",
+      lname: "Brown",
+      email: "Brown@example.com",
+      phoneNo: "08061283346",
+      address: "789 Oak St, Sometown, USA",
+    },
+    subjects: 1,
+    handling: "SSS1C",
+  },
+  {
+    id: 7,
+    teacherDetail: {
+      fname: "daniel",
+      lname: "Davis",
+      email: "Davis@example.com",
+      phoneNo: "08061283346",
+      address: "789 Oak St, Sometown, USA",
+    },
+    subjects: 1,
+    handling: "SSS2A1",
+  },
+  {
+    id: 8,
+    teacherDetail: {
+      fname: "sophia",
+      lname: "Martinez",
+      email: "Martinez@example.com",
+      phoneNo: "08061283346",
+      address: "789 Oak St, Sometown, USA",
+    },
+    subjects: 1,
+    handling: "SSS2A2",
+  },
+  {
+    id: 9,
+    teacherDetail: {
+      fname: "matthew",
+      lname: "Garcia",
+      email: "Garcia@example.com",
+      phoneNo: "08061283346",
+      address: "789 Oak St, Sometown, USA",
+    },
+    subjects: 1,
+    handling: "SSS2B",
+  },
+  {
+    id: 10,
+    teacherDetail: {
+      fname: "emma",
+      lname: "Miller",
+      email: "Miller@example.com",
+      phoneNo: "08061283346",
+      address: "789 Oak St, Sometown, USA",
+    },
+    subjects: 3,
+    handling: "SSS2C",
+  },
+];
 // Logging the mock data to the console for verification

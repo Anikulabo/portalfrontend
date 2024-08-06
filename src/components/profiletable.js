@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-
+import avatar1 from "../components/img/Avatart1.jpg";
 const ProfileTable = ({
   tabledata,
   Usersimages,
@@ -79,7 +79,7 @@ const ProfileTable = ({
             <thead>
               <tr>
                 <th>marked</th>
-                <th>Profile</th>
+                {Usersimages && <th>Profile</th>}
                 {Object.keys(filteredData[0])
                   .filter((item) => item !== "id")
                   .map((item, headindex) => (
@@ -93,38 +93,53 @@ const ProfileTable = ({
                   <td>
                     <input
                       type="checkbox"
-                      onChange={()=>{
-                        addmarkedentry(item.id)
+                      onChange={() => {
+                        addmarkedentry(item.id);
                       }}
-                      checked={true ? markedentries.includes(item.id) : false}
-                    />
-                  </td>
-                  <td
-                    className={
-                      item.id === activeprofile ? "bg-primary text-light" : ""
-                    }
-                    style={{ cursor: "pointer" }}
-                    onClick={() => setActiveprofile(item.id)}
-                  >
-                    <img
-                      src={
-                        Object.keys(item).includes("fname")
-                          ? Usersimages[`${item["fname"]}.jpg`]
-                          : Usersimages[`${item["first_name"]}.jpg`]
+                      checked={
+                        (Array.isArray(markedentries) &&
+                          markedentries.includes(item.id)) ||
+                        (markedentries === item.id&&typeof markedentries==="number")
+                          ? true
+                          : false
                       }
-                      alt="Profile"
-                      className="header-image"
                     />
                   </td>
+                  {Usersimages && (
+                    <td
+                      className={
+                        item.id === activeprofile ? "bg-primary text-light" : ""
+                      }
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setActiveprofile(item.id)}
+                    >
+                      <img
+                        src={
+                          Object.keys(item).includes("fname")
+                            ? Usersimages[`${item["fname"]}.jpg`] || avatar1
+                            : Usersimages[`${item["first_name"]}.jpg`] ||
+                              avatar1
+                        }
+                        alt="Profile"
+                        className="header-image"
+                      />
+                    </td>
+                  )}
                   {Object.keys(item)
                     .filter((item) => item !== "id")
                     .map((detail, childindex) => (
                       <td
                         key={childindex}
                         className={
-                          item.id === activeprofile ? "bg-primary text-light" : ""
+                          item.id === activeprofile
+                            ? "bg-primary text-light"
+                            : ""
                         }
-                        style={{ textTransform: "capitalize" }}
+                        style={{
+                          textTransform: "capitalize",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => setActiveprofile(item.id)}
                       >
                         {`${item[detail]}`}
                       </td>
@@ -154,7 +169,15 @@ const ProfileTable = ({
           >
             <i className="fas fa-plus"></i> Add a new entry
           </button>
-          <button className={`btn btn-secondary ${markedentries.length>0?'':'d-none'}`}>
+          <button
+            className={`btn btn-secondary ${
+              (markedentries.length ||
+                (typeof markedentries === "number" && markedentries > 0)) > 0
+                ? ""
+                : "d-none"
+            }`}
+          >
+
             <i className="fas fa-edit"></i> Update entries
           </button>
         </div>

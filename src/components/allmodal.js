@@ -14,7 +14,7 @@ export const Mainmodal = (props) => {
           </center>
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body className={props["bodyClass"]}>
+      <Modal.Body className={Object.keys(props).includes("bodyclass")?props["bodyClass"]:""}>
         {children.map((child, index) => (
           <span key={index}>{child}</span>
         ))}
