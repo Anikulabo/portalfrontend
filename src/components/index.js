@@ -13,6 +13,7 @@ import { renewToken } from "./useTokenRenewal";
 import { Mainmodal } from "./allmodal";
 import ProfileTable from "./profiletable";
 import Sidebar from "./adminsidebar";
+import UploadButton from "./photocomponent";
 const importAll = (requireContext) => {
   let images = {};
   requireContext.keys().forEach((item, index) => {
@@ -44,5 +45,5 @@ export {
   Sidebar,
   Usersimages,
   ProfileTable,
-  Personal
-};
+  Personal,
+UploadButton};

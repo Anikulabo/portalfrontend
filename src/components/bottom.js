@@ -30,8 +30,8 @@ export const Bottom = ({ number, action, btndisplay, ctrl }) => {
       <button
         className="btn btn-light text-light"
         style={{ backgroundColor: "rgb(81, 194, 37)" }}
-        onClick={() => {
-          ctrl();
+        onClick={(event) => {
+          ctrl ? ctrl(event) : alert("the button is still under development");
         }}
       >
         <i className="fas fa-check "></i>
@@ -41,7 +41,7 @@ export const Bottom = ({ number, action, btndisplay, ctrl }) => {
         className="btn btn-light text-light next-button"
         style={{
           backgroundColor: "rgb(81, 194, 37)",
-           display: btndisplay["next"] ? "block" : "none",
+          display: btndisplay["next"] ? "block" : "none",
         }}
         onClick={(event) => {
           action(event);

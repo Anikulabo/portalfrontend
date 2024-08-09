@@ -5,7 +5,11 @@ export const Mainmodal = (props) => {
   return (
     <Modal
       show={props.showModal}
-      onHide={() => props.actions.control(props.ctrl, "close")}
+      onHide={() =>
+        props.ctrl
+          ? props.actions.control(props.ctrl, "close")
+          : props.actions.control()
+      }
     >
       <Modal.Header closeButton>
         <Modal.Title>
@@ -14,7 +18,11 @@ export const Mainmodal = (props) => {
           </center>
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body className={Object.keys(props).includes("bodyclass")?props["bodyClass"]:""}>
+      <Modal.Body
+        className={
+          Object.keys(props).includes("bodyclass") ? props["bodyClass"] : ""
+        }
+      >
         {children.map((child, index) => (
           <span key={index}>{child}</span>
         ))}
@@ -23,7 +31,9 @@ export const Mainmodal = (props) => {
         <Button
           variant="secondary"
           onClick={() => {
-            props.actions.control(props.ctrl, "close");
+            props.ctrl
+              ? props.actions.control(props.ctrl, "close")
+              : props.actions.control();
           }}
         >
           {props.footer.close}
@@ -31,9 +41,11 @@ export const Mainmodal = (props) => {
         {props.actions.mainfunction && (
           <Button
             variant="primary"
-            onClick={() => {
-              props.actions.mainfunction();
-              props.actions.control(props.ctrl, "close");
+            onClick={(event) => {
+              props.actions.mainfunction(event);
+              props.ctrl
+                ? props.actions.control(props.ctrl, "close")
+                : props.actions.control();
             }}
           >
             {props.footer.mainfunction}

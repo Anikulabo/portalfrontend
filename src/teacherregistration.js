@@ -1,6 +1,13 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
-import { Top, Textinput, Forms, Bottom, Dropdown2 } from "./components";
+import {
+  Top,
+  Textinput,
+  Forms,
+  Bottom,
+  Dropdown2,
+  UploadButton,
+} from "./components";
 import { categories, departments } from "./studentregistration";
 import { onselected, objectreducer } from "./components/dependencies";
 import exam2 from "./components/img/exam2.jpg";
@@ -9,10 +16,11 @@ export const Teacheregistration = () => {
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [btndisplay, setBtndisplay] = useState({ next: true, previous: false });
-  const selected=useSelector((state)=>state.items.selected)
+  const selected = useSelector((state) => state.items.selected);
   const teacherdetail = useSelector((state) => state.items.teacherdetail);
   const common = useSelector((state) => state.items.common);
   let error = useSelector((state) => state.items.error);
+  const file=useSelector((state)=>state.items.image)
   const data = { ...teacherdetail, ...common };
   useEffect(() => {
     if (page >= 2) {
@@ -48,7 +56,7 @@ export const Teacheregistration = () => {
           res: arg["event"].target.innerText,
         };
       }
-      dispatch(updateentry(currentselection['res'],arg['type']))
+      dispatch(updateentry(currentselection["res"], arg["type"]));
       if (arg["type"] === "category" || arg["type"] === "department") {
         dispatch(updateentry(currentselection["id"], `${arg["type"]}_id`));
       } else {
@@ -74,14 +82,14 @@ export const Teacheregistration = () => {
   } catch (error) {
     console.error("Error:", error);
   }
-  let deptoptions = ["all"]
+  let deptoptions = ["all"];
   try {
     deptoptions = [
       ...deptoptions,
       ...departments
         .filter((detail) => detail.category_id === data.category_id)
         .map((item) => {
-          let {newobject} = objectreducer(item, ["name"]);
+          let { newobject } = objectreducer(item, ["name"]);
           return newobject;
         }),
     ];
@@ -89,8 +97,24 @@ export const Teacheregistration = () => {
     console.error("Error:", error);
     alert("error creating department array see console");
   }
-  const submit = () => {
-    console.log(data);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    console.log(data)
+    /*const formData = new FormData();
+    formData.append('file', file); // Append the file
+    formData.append('name', data.name); // Append additional data
+    formData.append('description', data.description); // Append additional data
+
+    try {
+      const response = await axios.post('YOUR_API_ENDPOINT_HERE', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Important for file uploads
+        },
+      });
+      console.log('File uploaded successfully:', response.data);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }*/
   };
   const redHueStyle = {
     position: "absolute",
@@ -145,6 +169,8 @@ export const Teacheregistration = () => {
                   action={updatedata}
                   ctrl={"phoneNo"}
                 />
+                <UploadButton
+                />
               </div>
             )}
             {page === 2 && (
@@ -182,7 +208,7 @@ export const Teacheregistration = () => {
           <Bottom
             action={changepage}
             btndisplay={btndisplay}
-            ctrl={submit}
+            ctrl={handleSubmit}
             number={page}
           />
         </div>

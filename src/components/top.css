@@ -12,6 +12,66 @@
 .transparent-red {
   background-color: rgba(240, 162, 162, 0.555); /* Red color with 50% opacity */
 }
+.upload-button-container {
+  position: relative;
+  display: inline-block;
+}
+
+.upload-button {
+  background-color: rgb(81, 194, 37);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  position: relative;
+  z-index: 1; 
+}
+
+
+.upload-options {
+  display: none;
+  position: absolute;
+  top: 100%; /* Position just below the upload button */
+  left: 0; /* Align with the left edge of the upload button */
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 2; /* Ensure the dropdown is above the upload button */
+  min-width: 160px; /* Set a minimum width for consistency */
+  padding: 0; /* Remove default padding */
+  flex-direction: column; /* Stack options vertically */
+  /* Ensure options stack vertically */
+}
+
+.upload-button-container:hover .upload-options {
+  display: block; /* Show options when hovered */
+}
+
+.upload-option {
+  padding: 10px 20px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  color: #007bff; /* Bootstrap primary color */
+  font-size: 16px;
+  text-align: left;
+  background-color: white;
+}
+
+.upload-option:last-child {
+  border-bottom: none;
+}
+
+.upload-option:hover {
+  background-color: #f8f9fa; /* Bootstrap light background color */
+}
+
+/* Add space between the buttons */
+.upload-option + .upload-option {
+  margin-top: 5px;
+}
 
 .submit-button {
   transform: translateX(-50%);
@@ -551,4 +611,13 @@ input[type="radio"]:checked + label {
   padding: 20px;
 }
 
+/* top.css or your relevant CSS file */
+.video-container {
+  position: relative;
+  display: inline-block;
+}
+
+video {
+  transform: scaleX(-1); /* Flip video horizontally */
+}
 
