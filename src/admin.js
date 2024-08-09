@@ -1,10 +1,16 @@
-import { Header, Sidebar, renewToken } from "./components";
+import Subjectimages, {
+  Header,
+  Sidebar,
+  renewToken,
+  Usersimages,
+  ProfileTable,
+  Personal,
+} from "./components";
 import avatar1 from "./components/img/Avatart1.jpg";
 import { Mainmodal } from "./components";
 import { automatic_obj_update } from "./components/dependencies";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Usersimages, ProfileTable, Personal } from "./components";
 import {
   all_teachers,
   all_students,
@@ -15,6 +21,10 @@ import {
   departments,
   subjects,
   Teacher_mock_data,
+  classes_mock_data,
+  SessionMockData,
+  category_mockdata,
+  Subjects_mock,
 } from "./components/testinput";
 import axios from "axios";
 import "./components/top.css";
@@ -22,10 +32,10 @@ const allActions = [
   "Teacher's Detail",
   "Student's Detail",
   "viewClasses",
-  "viewSession",
-  "viewCategory",
+  "viewSessions",
+  "viewCategories",
   "viewSubjects",
-  "viewDepartment",
+  "viewDepartments",
 ];
 const Admin = () => {
   const [activeButton, setActiveButton] = useState("Teacher's Detail");
@@ -37,6 +47,10 @@ const Admin = () => {
   const get_all_detail = {
     "Student's Detail": mockData,
     "Teacher's Detail": Teacher_mock_data,
+    viewClasses: classes_mock_data,
+    viewSessions: SessionMockData,
+    viewCategories: category_mockdata,
+    viewSubjects: Subjects_mock,
   };
   const [markedentry, setMarkedentry] = useState(() => {
     let markedentry = {};
@@ -98,13 +112,28 @@ const Admin = () => {
     fetchData();
   }, []);
   const detail = useMemo(() => {
-    let detail = {};
+    let computedDetail = {};
+
     if (get_all_detail[activeButton]) {
-      detail = get_all_detail[activeButton].find(
-        (item) => item.id === activeprofile
-      );
-    } else {
-      detail = {
+      if (activeButton !== "viewSubjects") {
+        computedDetail = get_all_detail[activeButton].find(
+          (item) => item.id === activeprofile
+        );
+      } else {
+        const subjectDetail = subjects.find(
+          (item) => item.id === activeprofile
+        );
+        if (subjectDetail) {
+          computedDetail = get_all_detail[activeButton].find(
+            (item) =>
+              item.name.toLowerCase() === subjectDetail.name.toLowerCase()
+          );
+        }
+      }
+    }
+
+    if (!computedDetail) {
+      computedDetail = {
         first_name: "kelvin",
         last_name: "Smith",
         categoryName: "Arts",
@@ -118,8 +147,10 @@ const Admin = () => {
         session: "Fall 2023",
       };
     }
-    return detail;
-  }, [activeprofile, activeButton, get_all_detail]);
+
+    return computedDetail;
+  }, [activeprofile, activeButton, get_all_detail, subjects]);
+
   const [allmodals, setAllmodals] = useState({
     updateStudent: false,
     viewClasses: false,
@@ -129,7 +160,7 @@ const Admin = () => {
   });
   const handleButtonClick = (sectionName, value) => {
     setActiveButton(sectionName);
-    console.log(markedentry);
+    console.log(Subjectimages);
     switch (sectionName) {
       case "Teacher's Detail":
         setFulldetail({ ...fulldetail, tabledata: all_teachers });
@@ -143,15 +174,15 @@ const Admin = () => {
         setFulldetail({ ...fulldetail, tabledata: classes });
         setActiveprofile(1);
         break;
-      case "viewSession":
+      case "viewSessions":
         setFulldetail({ ...fulldetail, tabledata: sessions });
         setActiveprofile(1);
         break;
-      case "viewCategory":
+      case "viewCategories":
         setFulldetail({ ...fulldetail, tabledata: categories });
         setActiveprofile(1);
         break;
-      case "viewDepartment":
+      case "viewDepartments":
         let reduceddepartments = departments.map((item) => {
           return { id: item.id, department: item.name };
         });
@@ -206,11 +237,12 @@ const Admin = () => {
       }
     } else {
       // for accepting only single update
-      let newmarkedentry = automatic_obj_update(
-        markedentry,
-        value,
-        activeButton
-      );
+      let newmarkedentry;
+      if (markedentry[activeButton] !== value) {
+        newmarkedentry = automatic_obj_update(markedentry, value, activeButton);
+      } else {
+        newmarkedentry = automatic_obj_update(markedentry, 0, activeButton);
+      }
       setMarkedentry(newmarkedentry);
     }
   };
@@ -246,9 +278,17 @@ const Admin = () => {
             <div className="row">
               <ProfileTable
                 tabledata={fulldetail["tabledata"]}
-                Usersimages={
-                  allActions.indexOf(activeButton) < 2 ? Usersimages : undefined
-                }
+                classtype={"col-5"}
+                top={7}
+                Usersimages={(() => {
+                  if (allActions.indexOf(activeButton) < 2) {
+                    return Usersimages;
+                  } else if (activeButton === "viewSubjects") {
+                    return Subjectimages;
+                  } else {
+                    return undefined;
+                  }
+                })()}
                 activeprofile={activeprofile}
                 topic={(() => {
                   let topic;
@@ -271,15 +311,33 @@ const Admin = () => {
               <Personal
                 testData={detail}
                 imageSrc={(() => {
-                  if (activeButton === "Student's Detail") {
-                    return Usersimages[`${detail["first_name"]}.jpg`];
-                  } else if (activeButton === "Teacher's Detail") {
-                    return Usersimages[
-                      `${detail["teacherDetail"]["fname"]}.jpg`
-                    ];
-                  } else {
-                    return undefined;
+                  let src;
+                  switch (activeButton) {
+                    case "Student's Detail":
+                      src = Object.keys(Usersimages).includes(
+                        `${detail["first_name"]}.jpg`
+                      )
+                        ? Usersimages[`${detail["first_name"]}.jpg`]
+                        : avatar1;
+                      break;
+                    case "Teacher's Detail":
+                      src = Object.keys(Usersimages).includes(
+                        `${detail["teacherDetail"]["fname"]}.jpg`
+                      )
+                        ? Usersimages[`${detail["teacherDetail"]["fname"]}.jpg`]
+                        : avatar1;
+                      break;
+                    case "viewSubjects":
+                      src = Object.keys(Subjectimages).includes(
+                        `${detail["name"]}.jpg`
+                      )
+                        ? Subjectimages[`${detail["name"]}.jpg`]
+                        : avatar1;
+                      break;
+                    default:
+                      src = undefined;
                   }
+                  return src;
                 })()}
               />
             </div>

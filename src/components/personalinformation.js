@@ -1,4 +1,14 @@
+import ProfileTable from "./profiletable";
+import { useState } from "react";
 const Personal = ({ imageSrc, testData }) => {
+  const [details, SetDetails] = useState([]);
+  function adddetails(value) {
+    if (!details.includes(value)) {
+      SetDetails([...details, value]);
+    } else {
+      SetDetails(details.filter((item) => item !== value));
+    }
+  }
   function splitter(mainobject, unwanted) {
     return Object.keys(mainobject)
       .filter((key) => !unwanted.includes(key))
@@ -9,8 +19,32 @@ const Personal = ({ imageSrc, testData }) => {
               <span style={{ color: "gray" }}>{item} :</span> {mainobject[item]}
             </p>
           );
-        } else {
+        }
+        if (
+          typeof mainobject[item] === "object" &&
+          mainobject[item] !== null &&
+          !Array.isArray(mainobject[item])
+        ) {
           return splitter(mainobject[item], unwanted);
+        }
+        if (Array.isArray(mainobject[item])) {
+          return (
+            <ProfileTable
+              top={1}
+              classtype={"container-fluid"}
+              tabledata={mainobject[item]}
+              topic={item}
+              addmarkedentry={adddetails}
+              markedentries={details}
+            />
+          );
+        }
+        if (mainobject[item] === null) {
+          return (
+            <p key={index}>
+              <span style={{ color: "gray" }}>{item} :</span> All
+            </p>
+          );
         }
       });
   }
@@ -48,9 +82,15 @@ const Personal = ({ imageSrc, testData }) => {
               textTransform: "capitalize",
             }}
           >
-            {testData["teacherDetail"]
-              ? `${testData["teacherDetail"]["fname"]} ${testData["teacherDetail"]["lname"]}`
-              : `${testData["first_name"]} ${testData["last_name"]}`}
+            {(() => {
+              if (testData["teacherDetail"]) {
+                return `${testData["teacherDetail"]["fname"]} ${testData["teacherDetail"]["lname"]}`;
+              } else if (testData["first_name"]) {
+                return `${testData["first_name"]} ${testData["last_name"]}`;
+              } else {
+                return `${testData["name"]}`;
+              }
+            })()}
           </h3>
         </div>
       )}
@@ -59,8 +99,14 @@ const Personal = ({ imageSrc, testData }) => {
         style={{ fontWeight: "bolder", width: "100%", textAlign: "left" }}
       >
         <h5 style={{ fontWeight: "bolder" }}>Basic Detail</h5>
-        {(()=>{
-          return splitter(testData,["first_name","last_name","fname","lname","id"])
+        {(() => {
+          return splitter(testData, [
+            "first_name",
+            "last_name",
+            "fname",
+            "lname",
+            "id",
+          ]);
         })()}
       </div>
     </div>

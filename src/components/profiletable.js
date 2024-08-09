@@ -9,6 +9,8 @@ const ProfileTable = ({
   topic,
   addmarkedentry,
   markedentries,
+  classtype,
+  top
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -26,12 +28,12 @@ const ProfileTable = ({
       : tabledata;
   return (
     <div
-      className="table-container col-5"
+      className={`table-container ${classtype}`}
       style={{
         overflowY: "auto",
         maxHeight: "75vh",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-        marginTop: "7rem",
+        marginTop: `${top}rem`,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
@@ -79,7 +81,9 @@ const ProfileTable = ({
             <thead>
               <tr>
                 <th>marked</th>
-                {Usersimages && <th>Profile</th>}
+                {Usersimages && (
+                  <th>{topic !== "Subjects" ? "profile" : "icon"}</th>
+                )}
                 {Object.keys(filteredData[0])
                   .filter((item) => item !== "id")
                   .map((item, headindex) => (
@@ -99,7 +103,8 @@ const ProfileTable = ({
                       checked={
                         (Array.isArray(markedentries) &&
                           markedentries.includes(item.id)) ||
-                        (markedentries === item.id&&typeof markedentries==="number")
+                        (markedentries === item.id &&
+                          typeof markedentries === "number")
                           ? true
                           : false
                       }
@@ -108,18 +113,47 @@ const ProfileTable = ({
                   {Usersimages && (
                     <td
                       className={
-                        item.id === activeprofile ? "bg-primary text-light" : ""
+                        activeprofile && item.id === activeprofile
+                          ? "bg-primary text-light"
+                          : ""
                       }
                       style={{ cursor: "pointer" }}
-                      onClick={() => setActiveprofile(item.id)}
+                      onClick={() =>
+                        activeprofile
+                          ? setActiveprofile(item.id)
+                          : console.log(item.id)
+                      }
                     >
                       <img
-                        src={
-                          Object.keys(item).includes("fname")
-                            ? Usersimages[`${item["fname"]}.jpg`] || avatar1
-                            : Usersimages[`${item["first_name"]}.jpg`] ||
-                              avatar1
-                        }
+                        src={(() => {
+                          let img;
+                          switch (topic) {
+                            case "Teachers":
+                              img = Object.keys(Usersimages).includes(
+                                `${item["fname"]}.jpg`
+                              )
+                                ? Usersimages[`${item["fname"]}.jpg`]
+                                : avatar1;
+                              break;
+                            case "Students":
+                              img = Object.keys(Usersimages).includes(
+                                `${item["first_name"]}.jpg`
+                              )
+                                ? Usersimages[`${item["first_name"]}.jpg`]
+                                : avatar1;
+                              break;
+                            case "Subjects":
+                              img = Object.keys(Usersimages).includes(
+                                `${item["name"]}.jpg`
+                              )
+                                ? Usersimages[`${item["name"]}.jpg`]
+                                : avatar1;
+                              break;
+                            default:
+                              img = avatar1;
+                          }
+                          return img;
+                        })()}
                         alt="Profile"
                         className="header-image"
                       />
@@ -131,7 +165,7 @@ const ProfileTable = ({
                       <td
                         key={childindex}
                         className={
-                          item.id === activeprofile
+                          activeprofile && item.id === activeprofile
                             ? "bg-primary text-light"
                             : ""
                         }
@@ -139,7 +173,11 @@ const ProfileTable = ({
                           textTransform: "capitalize",
                           cursor: "pointer",
                         }}
-                        onClick={() => setActiveprofile(item.id)}
+                        onClick={() => {
+                          activeprofile
+                            ? setActiveprofile(item.id)
+                            : console.log(item.id);
+                        }}
                       >
                         {`${item[detail]}`}
                       </td>
@@ -177,7 +215,6 @@ const ProfileTable = ({
                 : "d-none"
             }`}
           >
-
             <i className="fas fa-edit"></i> Update entries
           </button>
         </div>
