@@ -1,5 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Top,
   Textinput,
@@ -20,7 +21,8 @@ export const Teacheregistration = () => {
   const teacherdetail = useSelector((state) => state.items.teacherdetail);
   const common = useSelector((state) => state.items.common);
   let error = useSelector((state) => state.items.error);
-  const file=useSelector((state)=>state.items.image)
+  const token = useSelector((state) => state.items.token);
+  const file = useSelector((state) => state.items.image);
   const data = { ...teacherdetail, ...common };
   useEffect(() => {
     if (page >= 2) {
@@ -98,24 +100,67 @@ export const Teacheregistration = () => {
     alert("error creating department array see console");
   }
   const handleSubmit = async (event) => {
-    event.preventDefault();
-    console.log(data)
-    /*const formData = new FormData();
-    formData.append('file', file); // Append the file
-    formData.append('name', data.name); // Append additional data
-    formData.append('description', data.description); // Append additional data
-
-    try {
-      const response = await axios.post('YOUR_API_ENDPOINT_HERE', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data', // Important for file uploads
-        },
-      });
-      console.log('File uploaded successfully:', response.data);
-    } catch (error) {
-      console.error('Error uploading file:', error);
-    }*/
+    event.preventDefault(); // Prevent default form submission behavior
+    const ignore = ["year", "teacherid"];
+    
+    // Log the form data for debugging
+    console.log(data);
+  
+    // Create a FormData object
+    const formData = new FormData();
+  
+    // Check if a file is selected
+    if (file) {
+      formData.append("file", file);
+    } else {
+      console.error("No file selected");
+      alert("No file selected");
+      return; // Exit if no file is selected
+    }
+  
+    // Append other form data, excluding keys in the ignore list
+    for (const key of Object.keys(data)) {
+      if (!ignore.includes(key)) {
+        if (data[key] !== null && data[key] !== "") {
+          formData.append(key, data[key]);
+        } else {
+          console.error(`Value for key ${key} cannot be empty`);
+          alert(`Value for key ${key} cannot be empty`);
+          return; // Exit if any required field is empty
+        }
+      }
+    }
+  
+    // Ensure the token is not null or undefined
+    if (token) {
+      try {
+        // Make the POST request with axios
+        const response = await axios.post(
+          `http://localhost:3001/teacher`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data", // Set content type for file uploads
+            },
+          }
+        );
+  
+        // Handle the successful response
+        console.log("File uploaded successfully:", response.data);
+        alert("teacher has been successfully registered")
+      } catch (error) {
+        // Handle any errors during the request
+        console.error(
+          "Error uploading file:",
+          error.response ? error.response.data : error.message
+        );
+      }
+    } else {
+      alert("Make sure you're logged in properly");
+    }
   };
+  
   const redHueStyle = {
     position: "absolute",
     top: 0,
@@ -138,7 +183,7 @@ export const Teacheregistration = () => {
         </div>
         <div className="col-md-6 formholder d-flex align-items-stretch d-sm-none d-md-block">
           <Top content={"Teacher registration"} />
-          <Forms small={false} error={error}>
+          <Forms small={false} error={error} handleSubmit={handleSubmit}>
             {page === 1 && (
               <div>
                 <Textinput
@@ -164,13 +209,12 @@ export const Teacheregistration = () => {
                 />
                 <Textinput
                   variable={"Phone Number"}
-                  username={data.email}
+                  username={data.phoneNo}
                   placeholder={"Enter the teacher's Phone No."}
                   action={updatedata}
                   ctrl={"phoneNo"}
                 />
-                <UploadButton
-                />
+                <UploadButton />
               </div>
             )}
             {page === 2 && (
@@ -204,13 +248,13 @@ export const Teacheregistration = () => {
                 )}
               </div>
             )}
-          </Forms>
-          <Bottom
+            <Bottom
             action={changepage}
             btndisplay={btndisplay}
             ctrl={handleSubmit}
             number={page}
           />
+          </Forms>
         </div>
       </div>
     </div>

@@ -27,10 +27,10 @@ const initialstate = {
     { activity: "payment for pastquestion recieved", seen: false },
   ],
   common: {
-    category_id: null,
+    category_id: 0,
     email: "",
     address: "",
-    department_id: null,
+    department_id: 0,
     year: null,
     teacherid: null,
   },

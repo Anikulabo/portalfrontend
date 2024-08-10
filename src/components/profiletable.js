@@ -10,7 +10,8 @@ const ProfileTable = ({
   addmarkedentry,
   markedentries,
   classtype,
-  top
+  top,
+  addfunction
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -204,6 +205,7 @@ const ProfileTable = ({
           <button
             className="btn btn-primary mr-2"
             style={{ marginRight: "15px" }}
+            onClick={()=>addfunction()}
           >
             <i className="fas fa-plus"></i> Add a new entry
           </button>

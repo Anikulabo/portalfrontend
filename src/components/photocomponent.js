@@ -21,7 +21,6 @@ const UploadButton = ({ onFileUpload }) => {
   }, []);
 
   const capturePhoto = () => {
-    alert("Capturing photo");
     if (canvasRef.current && videoRef.current) {
       const context = canvasRef.current.getContext("2d");
       canvasRef.current.width = videoRef.current.videoWidth;

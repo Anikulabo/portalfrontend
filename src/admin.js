@@ -9,6 +9,7 @@ import Subjectimages, {
 import avatar1 from "./components/img/Avatart1.jpg";
 import { Mainmodal } from "./components";
 import { automatic_obj_update } from "./components/dependencies";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
@@ -44,6 +45,7 @@ const Admin = () => {
   const [fulldetail, setFulldetail] = useState({
     tabledata: teachers,
   });
+  const navigate = useNavigate();
   const get_all_detail = {
     "Student's Detail": mockData,
     "Teacher's Detail": Teacher_mock_data,
@@ -87,6 +89,12 @@ const Admin = () => {
       };
     }
   }, [token, intervalRef, userdata, dispatch]);
+  const adddata = () => {
+    switch (activeButton) {
+      case "Teacher's Detail":
+        navigate("/teacheregistration", { replace: false });
+    }
+  };
   useEffect(() => {
     const fetchData = async () => {
       let id = 0;
@@ -306,6 +314,7 @@ const Admin = () => {
                 })()}
                 markedentries={markedentry[activeButton]}
                 addmarkedentry={addentry}
+                addfunction={adddata}
                 setActiveprofile={setActiveprofile}
               />
               <Personal

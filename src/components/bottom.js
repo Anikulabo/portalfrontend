@@ -3,9 +3,9 @@ export const Bottom = ({ number, action, btndisplay, ctrl }) => {
   return (
     <div
       style={{
-        position: "absolute",
+        position: "fixed",
         bottom: "0",
-        left: "50%",
+        left: "80%",
         transform: "translateX(-50%)",
         width: "100%",
         display: "flex",
@@ -21,6 +21,7 @@ export const Bottom = ({ number, action, btndisplay, ctrl }) => {
           display: btndisplay["previous"] ? "block" : "none",
         }}
         onClick={(event) => {
+          event.preventDefault();
           action(event);
         }}
       >
@@ -30,7 +31,9 @@ export const Bottom = ({ number, action, btndisplay, ctrl }) => {
       <button
         className="btn btn-light text-light"
         style={{ backgroundColor: "rgb(81, 194, 37)" }}
+        type="submit"
         onClick={(event) => {
+          event.preventDefault();
           ctrl ? ctrl(event) : alert("the button is still under development");
         }}
       >
@@ -44,6 +47,7 @@ export const Bottom = ({ number, action, btndisplay, ctrl }) => {
           display: btndisplay["next"] ? "block" : "none",
         }}
         onClick={(event) => {
+          event.preventDefault();
           action(event);
         }}
       >
