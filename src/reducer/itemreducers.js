@@ -35,7 +35,9 @@ const initialstate = {
     teacherid: null,
   },
   activeSession:null,
-  image:null
+  image:null,
+  alluserimages:null,
+  allsubjecticons:null
 };
 export const itemReducer = (state = initialstate, action) => {
   switch (action.type) {

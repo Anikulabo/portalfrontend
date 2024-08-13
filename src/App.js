@@ -2,6 +2,7 @@ import { Login } from "./login";
 import { Registration } from "./studentregistration";
 import { Teacheregistration } from "./teacherregistration";
 import { Student } from "./studentportal";
+import Layout from './Layout';
 import { TeacherPortal } from "./teachersportal";
 import { Provider } from "react-redux";
 import Admin from "./admin";
@@ -16,6 +17,7 @@ function App() {
   return (
     <Provider store={store}>
       <Router>
+        <Layout>
         <div>
           <Routes>
             <Route path="/" element={<Login />} />
@@ -26,6 +28,7 @@ function App() {
             <Route path="/admindashboard" element={<Admin />} />
           </Routes>
         </div>
+        </Layout>
       </Router>
     </Provider>
   );

@@ -221,6 +221,28 @@ axiosInstance.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+export const base64ToFile=(base64String, filename)=> {
+  // Extract the base64 data and mime type from the base64 string
+  const [mimeString, base64Data] = base64String.split(',');
+  const mimeType = mimeString.match(/:(.*?);/)[1];
+  
+  // Convert base64 data to a binary buffer
+  const binary = atob(base64Data);
+  const arrayBuffer = new ArrayBuffer(binary.length);
+  const uint8Array = new Uint8Array(arrayBuffer);
+  
+  for (let i = 0; i < binary.length; i++) {
+    uint8Array[i] = binary.charCodeAt(i);
+  }
+  
+  // Create a Blob from the binary data
+  const blob = new Blob([arrayBuffer], { type: mimeType });
+  
+  // Create a File from the Blob
+  const file = new File([blob], filename, { type: mimeType });
+  
+  return file;
+}
 
 export default axiosInstance;
 

@@ -6,13 +6,12 @@ import {
   TeacherCard,
   Mainmodal,
   Inputpassword,
-  renewToken,
 } from "./components";
 import { automatic_obj_update } from "./components/dependencies";
 import { useEffect, useState, useRef } from "react";
 import Subjectimages from "./components";
 import avatar1 from "./components/img/Avatart1.jpg";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { subjects, studentsession } from "./components/testinput";
 export const Student = () => {
   let [visible, setVisible] = useState(4);
@@ -43,38 +42,16 @@ export const Student = () => {
     confirm_password: "",
   });
   const notifications = useSelector((state) => state.items.notifications);
-  const userdata = useSelector((state) => state.items.userdata);
-  const token = useSelector((state) => state.items.token);
   let [visiblesubject, setVisiblesubject] = useState(
     subjects.filter((detail) => detail.id <= visible && detail.id > visible - 4)
   );
-  const dispatch = useDispatch();
-  const intervalRef = useRef(null);
   useEffect(() => {
     setIcondisplay({
       ...icondisplay,
       next: visible < subjects.length,
       previous: visible > 4,
     });
-    if (token !== null) {
-      // Clear the previous interval if it exists
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-
-      // Set up a new interval
-      intervalRef.current = setInterval(
-        () => renewToken(userdata, dispatch),
-        60000
-      ); // 1 minute
-      // Clean up function to clear the interval when component unmounts or dependencies change
-      return () => {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-        }
-      };
-    }
-  }, [visible, subjects.length, dispatch, token, userdata]);
+  }, [visible, subjects.length]);
   const addupdate = (event, type) => {
     const value = event.target.value;
     let newpassword = automatic_obj_update(passwords, value, type);

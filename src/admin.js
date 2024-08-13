@@ -1,7 +1,6 @@
 import Subjectimages, {
   Header,
   Sidebar,
-  renewToken,
   Usersimages,
   ProfileTable,
   Personal,
@@ -45,6 +44,7 @@ const Admin = () => {
   const [fulldetail, setFulldetail] = useState({
     tabledata: teachers,
   });
+  const icons=useSelector((state)=>state.items.allsubjecticons);
   const navigate = useNavigate();
   const get_all_detail = {
     "Student's Detail": mockData,
@@ -66,29 +66,6 @@ const Admin = () => {
     return markedentry;
   });
   const token = useSelector((state) => state.items.token);
-  const userdata = useSelector((state) => state.items.userdata);
-  const intervalRef = useRef(null);
-  const dispatch = useDispatch();
-  useEffect(() => {
-    if (token !== null) {
-      // Clear the previous interval if it exists
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      // Set up a new interval
-      intervalRef.current = setInterval(
-        () => renewToken(userdata, dispatch),
-        60000
-      ); // 1 minute
-
-      // Clean up function to clear the interval when component unmounts or dependencies change
-      return () => {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-        }
-      };
-    }
-  }, [token, intervalRef, userdata, dispatch]);
   const adddata = () => {
     switch (activeButton) {
       case "Teacher's Detail":
@@ -168,7 +145,8 @@ const Admin = () => {
   });
   const handleButtonClick = (sectionName, value) => {
     setActiveButton(sectionName);
-    console.log(Subjectimages);
+    console.log(icons);
+    console.log(Subjectimages)
     switch (sectionName) {
       case "Teacher's Detail":
         setFulldetail({ ...fulldetail, tabledata: all_teachers });
@@ -292,7 +270,7 @@ const Admin = () => {
                   if (allActions.indexOf(activeButton) < 2) {
                     return Usersimages;
                   } else if (activeButton === "viewSubjects") {
-                    return Subjectimages;
+                    return icons!==null?icons:Subjectimages;
                   } else {
                     return undefined;
                   }

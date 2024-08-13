@@ -1,20 +1,20 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useSelector,useDispatch } from "react-redux";
-import "./top.css"; // Import the CSS file for custom styling
-import { Mainmodal } from "./allmodal"; // Import Mainmodal component
+import { useSelector, useDispatch } from "react-redux";
+import "./top.css";
+import { Mainmodal } from "./allmodal";
 import { updateentry } from "../action";
+
 const UploadButton = ({ onFileUpload }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
   const [stream, setStream] = useState(null);
   const [error, setError] = useState(null);
   const [cameraStarted, setCameraStarted] = useState(false);
   const fileInputRef = useRef(null);
   const [showCamera, setShowCamera] = useState(false);
-  const photoData=useSelector((state)=>state.items.image);
+  const photoData = useSelector((state) => state.items.image);
 
-  // UseEffect to check refs and state on render
   useEffect(() => {
     console.log('videoRef:', videoRef.current);
     console.log('canvasRef:', canvasRef.current);
@@ -27,8 +27,8 @@ const UploadButton = ({ onFileUpload }) => {
       canvasRef.current.height = videoRef.current.videoHeight;
       context.drawImage(videoRef.current, 0, 0);
       const imageData = canvasRef.current.toDataURL("image/jpeg");
-      console.log(imageData)
-     dispatch(updateentry(imageData,"image")) // Pass the image data to parent component
+      console.log(imageData);
+      dispatch(updateentry(imageData, "image"));
     } else {
       console.error("Canvas or Video ref is null");
     }
@@ -47,43 +47,36 @@ const UploadButton = ({ onFileUpload }) => {
   };
 
   const handleTakePhotoClick = (event) => {
-    event.preventDefault(); // Prevent default form submission or link behavior
+    event.preventDefault();
     if (!cameraStarted) {
       startCamera();
     } else {
       capturePhoto();
       stopCamera();
-      setShowCamera(false); // Hide the camera component
+      setShowCamera(false);
     }
   };
 
   const handleFileUpload = (event) => {
     event.preventDefault();
-  
     const file = event.target.files[0];
-  
-    // Validate file type
     if (file) {
-      const validTypes = ['image/jpeg', 'image/jpg','image/PNG'];
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/PNG'];
       if (!validTypes.includes(file.type)) {
         alert("Please select a JPG or JPEG file.");
         return;
       }
-  
-      // Read file data and set to photoData
       const reader = new FileReader();
       reader.onloadend = () => {
-        dispatch(updateentry(reader.result,"image")); // Set photoData to the file data URL
+        dispatch(updateentry(reader.result, "image"));
       };
       reader.readAsDataURL(file);
-  
-      // Optionally, call onFileUpload if you need to handle file upload elsewhere
+
       if (onFileUpload) {
         onFileUpload(file);
       }
     }
   };
-  
 
   const startCamera = async () => {
     try {
@@ -111,7 +104,7 @@ const UploadButton = ({ onFileUpload }) => {
 
   const handleTakePicture = (event) => {
     event.preventDefault();
-    setShowCamera(true); // Show the camera capture component
+    setShowCamera(true);
     startCamera();
   };
 
@@ -131,14 +124,14 @@ const UploadButton = ({ onFileUpload }) => {
             type="button" // Prevent default form submission
             onClick={handleClickUpload}
           >
-            Upload File
+            <i className="fas fa-upload"></i> Upload File
           </button>
           <button
             className="btn btn-secondary upload-option"
             type="button" // Prevent default form submission
             onClick={handleTakePicture}
           >
-            Take Picture
+            <i className="fas fa-camera ml-3"></i> Take Picture
           </button>
         </div>
         <input
@@ -150,12 +143,11 @@ const UploadButton = ({ onFileUpload }) => {
         />
       </div>
 
-      {/* Bootstrap Modal */}
       <Mainmodal
         showModal={showCamera}
         title={"Take a Photo"}
         actions={{ control: closeModal, mainfunction: handleTakePhotoClick }}
-        footer={{ close: "stop capture", mainfunction: "capture" }}
+        footer={{ close: "Stop Capture", mainfunction: "Capture" }}
       >
         {error && <p className="text-danger">{error}</p>}
         <video
@@ -173,7 +165,7 @@ const UploadButton = ({ onFileUpload }) => {
         <img
           src={photoData}
           alt="Captured"
-          style={{ marginLeft:"15px", marginTop: "10px", width: "250px", height: "200px" }}
+          style={{ marginLeft: "15px", marginTop: "10px", width: "250px", height: "200px" }}
         />
       )}
     </div>

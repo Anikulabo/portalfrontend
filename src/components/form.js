@@ -1,18 +1,28 @@
 import "./top.css";
 import React from "react";
-export const Forms = (props) => {
-  const childrenArray = React.Children.toArray(props.children);
+
+export const Forms = ({ children, handleSubmit, error, small }) => {
   return (
-    <form className="container-fluid position-relative" style={{marginTop:"4.5rem"}} onSubmit={props.handlesubmit}>
-      <small
-        className="text-danger"
-        style={{ display: props.small ? "block" : "none", marginTop: "40px" }}
-      >
-        {props.error}
-      </small>
-      {childrenArray.map((child, index) => {
-        return <span key={index}>{child}</span>;
-      })}
+    <form
+      className="container-fluid position-relative"
+      style={{ marginTop: "4.5rem" }}
+      onSubmit={(event) => {
+        event.preventDefault(); // Prevent default form submission behavior
+        console.log("Form submit event"); // Debug log
+        handleSubmit(event);
+      }}
+    >
+      {error && (
+        <small
+          className="text-danger"
+          style={{ display: small ? "block" : "none", marginTop: "40px" }}
+        >
+          {error}
+        </small>
+      )}
+      {React.Children.map(children, (child, index) => (
+        <span key={index}>{child}</span>
+      ))}
     </form>
   );
 };

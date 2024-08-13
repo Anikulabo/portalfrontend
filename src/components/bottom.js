@@ -1,11 +1,12 @@
 import "./top.css";
+
 export const Bottom = ({ number, action, btndisplay, ctrl }) => {
   return (
     <div
       style={{
         position: "fixed",
         bottom: "0",
-        left: "80%",
+        left: "80%", // Adjust to center the buttons horizontally
         transform: "translateX(-50%)",
         width: "100%",
         display: "flex",
@@ -31,13 +32,9 @@ export const Bottom = ({ number, action, btndisplay, ctrl }) => {
       <button
         className="btn btn-light text-light"
         style={{ backgroundColor: "rgb(81, 194, 37)" }}
-        type="submit"
-        onClick={(event) => {
-          event.preventDefault();
-          ctrl ? ctrl(event) : alert("the button is still under development");
-        }}
+        type="submit" // Corrected type attribute
       >
-        <i className="fas fa-check "></i>
+        <i className="fas fa-check"></i>
         <span style={{ marginLeft: "3px" }}>Submit</span>
       </button>
       <button

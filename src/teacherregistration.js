@@ -1,5 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
+import { base64ToFile } from "./components/dependencies";
 import axios from "axios";
 import {
   Top,
@@ -101,21 +102,23 @@ export const Teacheregistration = () => {
   }
   const handleSubmit = async (event) => {
     event.preventDefault(); // Prevent default form submission behavior
+    console.log("handleSubmit called");
     const ignore = ["year", "teacherid"];
-    
+  
     // Log the form data for debugging
     console.log(data);
   
     // Create a FormData object
     const formData = new FormData();
   
-    // Check if a file is selected
+    // Convert base64 to File and append to FormData
     if (file) {
-      formData.append("file", file);
+      const img = base64ToFile(file, "image.jpeg"); // Ensure 'data.file' is base64 string
+      formData.append("file", img);
     } else {
-      console.error("No file selected");
-      alert("No file selected");
-      return; // Exit if no file is selected
+      console.error("No file data provided");
+      alert("No file data provided");
+      return; // Exit if no file data is provided
     }
   
     // Append other form data, excluding keys in the ignore list
@@ -141,26 +144,28 @@ export const Teacheregistration = () => {
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data", // Set content type for file uploads
+              "Content-Type": "multipart/form-data",
             },
           }
         );
   
         // Handle the successful response
-        console.log("File uploaded successfully:", response.data);
-        alert("teacher has been successfully registered")
+        console.log("File uploaded successfully:", response);
+        alert("Teacher registered successfully");
       } catch (error) {
         // Handle any errors during the request
         console.error(
           "Error uploading file:",
           error.response ? error.response.data : error.message
         );
+        alert("Error uploading file");
       }
     } else {
       alert("Make sure you're logged in properly");
     }
   };
-  
+  ;
+
   const redHueStyle = {
     position: "absolute",
     top: 0,
@@ -249,11 +254,11 @@ export const Teacheregistration = () => {
               </div>
             )}
             <Bottom
-            action={changepage}
-            btndisplay={btndisplay}
-            ctrl={handleSubmit}
-            number={page}
-          />
+              action={changepage}
+              btndisplay={btndisplay}
+              ctrl={(event) => console.log("it should submit")}
+              number={page}
+            />
           </Forms>
         </div>
       </div>
