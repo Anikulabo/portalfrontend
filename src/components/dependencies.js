@@ -218,7 +218,6 @@ axiosInstance.interceptors.request.use(
   (config) => {
     // Get the token from local storage or state
     const token = store.getState().token;
-
     if (token) {
       // Add the token to the headers
       config.headers["Authorization"] = `Bearer ${token}`;
@@ -252,6 +251,90 @@ export const base64ToFile = (base64String, filename) => {
   const file = new File([blob], filename, { type: mimeType });
 
   return file;
+};
+export const objectsearch = (obj, searchKey) => {
+  // Function to recursively search within an object
+  const recursivesearch = (currentObj, keyToFind) => {
+    // Iterate through the object's entries
+    for (const [key, value] of Object.entries(currentObj)) {
+      // Check if the current key matches the search key
+      if (key === keyToFind) {
+        return value;
+      }
+      // If the value is an object, recursively search within it
+      if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+        const result = recursivesearch(value, keyToFind);
+        if (result !== undefined) {
+          return result;
+        }
+      }
+      // If the value is an array, search within each item in the array
+      if (Array.isArray(value)) {
+        for (const item of value) {
+          if (typeof item === "object") {
+            const result = recursivesearch(item, keyToFind);
+            if (result !== undefined) {
+              return result;
+            }
+          }
+        }
+      }
+    }
+    // Return undefined if the key was not found
+    return undefined;
+  };
+
+  // Check if the key exists in the top-level object
+  if (Object.prototype.hasOwnProperty.call(obj, searchKey)) {
+    return obj[searchKey];
+  } else {
+    // Otherwise, perform a recursive search
+    return recursivesearch(obj, searchKey);
+  }
+};
+
+export const objectreducerontypes = (obj, dataType) => {
+  let filteredobject = {};
+
+  try {
+    // Validate obj and dataType
+    typechecker({ obj, dataType }, [
+      { key: "obj", type: "object" },
+      { key: "dataType", type: "string" },
+    ]);
+
+    // Function to recursively extract properties
+    const extractProperties = (object) => {
+      let result = {};
+
+      for (const [key, value] of Object.entries(object)) {
+        // Add property if it matches the specified dataType
+        if (typeof value === dataType) {
+          result[key] = value;
+        }
+
+        // Recursively process nested objects
+        if (
+          typeof value === "object" &&
+          value !== null &&
+          !Array.isArray(value)
+        ) {
+          const nestedResult = extractProperties(value);
+          // Merge nested results into the root result
+          result = { ...result, ...nestedResult };
+        }
+      }
+
+      return result;
+    };
+
+    filteredobject = extractProperties(obj);
+
+    return filteredobject;
+  } catch (error) {
+    console.error("Validation error:", error.message);
+    throw new Error(`Validation error: ${error.message}`);
+  }
 };
 
 export default axiosInstance;

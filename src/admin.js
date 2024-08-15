@@ -8,8 +8,11 @@ import Subjectimages, {
 } from "./components";
 import avatar1 from "./components/img/Avatart1.jpg";
 import { Mainmodal } from "./components";
-import { updateentry } from "./action";
-import { automatic_obj_update } from "./components/dependencies";
+import {
+  automatic_obj_update,
+  objectreducerontypes,
+  objectsearch,
+} from "./components/dependencies";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useMemo, useEffect, useRef } from "react";
@@ -39,14 +42,56 @@ const allActions = [
   "viewSubjects",
   "viewDepartments",
 ];
+const ALLREQBODIES = {
+  "Teacher's Detail": [
+    "fname",
+    "lname",
+    "email",
+    "phoneNo",
+    "address",
+    "category_id",
+    "department_id",
+  ],
+  "Student's Detail": [
+    "first_name",
+    "last_name",
+    "category_id",
+    "department_id",
+    "year",
+    "sex",
+    "DOB",
+    "email",
+    "address",
+  ],
+  viewClasses: ["year", "category_id", "department_id", "name", "teacherid"],
+  viewSessions: ["sessionName", "term"],
+  viewCategories: ["categoryName", "years"],
+  viewSubjects: ["name", "categories", "departments", "teachers", "compulsory"],
+  viewDepartments: ["category_id", "name"],
+};
 const Admin = () => {
   const dispatch = useDispatch();
   const [activeButton, setActiveButton] = useState("Teacher's Detail");
   const [activeprofile, setActiveprofile] = useState(1);
-  const [dataToSubmit, setDataToSubmit] = useState({});
   let [teachers, setTeachers] = useState(all_teachers);
   const [fulldetail, setFulldetail] = useState({
     tabledata: teachers,
+  });
+  let teachersdetail = useSelector((state) => state.items.teacherDetail);
+  let studentdetails = useSelector((state) => state.items.studentdetail);
+  let common = useSelector((state) => state.items.common);
+  let [alldata, setAlldata] = useState({
+    name: "",
+    categoryName: "",
+    sessionName: "",
+    ...teachersdetail,
+    ...studentdetails,
+    ...common,
+    categories: [],
+    departments: [],
+    teachers: [],
+    compulsory: [],
+    years: null,
   });
   const icons = useSelector((state) => state.items.allsubjecticons);
   const navigate = useNavigate();
@@ -81,9 +126,10 @@ const Admin = () => {
         console.log(allmodals);
     }
   };
-  const updatedata = (value, part) => {
-    setDataToSubmit({ ...dataToSubmit, [part]: value });
-    dispatch(updateentry(value, part));
+  const updatedata = (event, part) => {
+    let value = event.target.value;
+    let newdatas = automatic_obj_update(alldata, value, part);
+    setAlldata(newdatas);
   };
   useEffect(() => {
     const fetchData = async () => {
@@ -239,15 +285,54 @@ const Admin = () => {
           actions={{ control: modalupdate, mainfunction: updatedata }}
           footer={{ close: "close", mainfunction: "Add" }}
         >
-          {activeButton === "Student's Detail" && (
-            <Textinput
-              variable={"First Name"}
-              username={data.fname}
-              placeholder={"Enter the Teacher's firstname"}
-              action={updatedata}
-              ctrl={"fname"}
+          {Object.keys(objectreducerontypes(alldata, "string"))
+            .filter((detail) => detail !== "DOB")
+            .map((item) => {
+              return (
+                ALLREQBODIES[activeButton].includes(item) && (
+                  <Textinput
+                    variable={(() => {
+                      if (item === "fname") {
+                        return "first_name";
+                      } else if (item === "lname") {
+                        return "last_name";
+                      } else {
+                        return item;
+                      }
+                    })()}
+                    username={objectsearch(alldata, item)}
+                    placeholder={(() => {
+                      let topic;
+                      switch (activeButton) {
+                        case "Teacher's Detail":
+                          topic = "Teachers";
+                          break;
+                        case "Student's Detail":
+                          topic = "Students";
+                          break;
+                        default:
+                          topic = activeButton.slice(4, activeButton.length);
+                      }
+                      return `Enter the ${topic}'s ${item}`;
+                    })()}
+                    action={updatedata}
+                    ctrl={item}
+                  />
+                )
+              );
+            })}
+          {ALLREQBODIES[activeButton].includes("DOB")&&<div className="input-group">
+            <label for="dob">Date of Birth:</label>
+            <input
+              type="date"
+              id="dob"
+              name="dob"
+              onChange={(event) => {
+                updatedata(event, "DOB");
+              }}
+              value={alldata["DOB"]}
             />
-          )}
+          </div>}
         </Mainmodal>
         {/*main layout*/}
         <div className="row">

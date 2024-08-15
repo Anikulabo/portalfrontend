@@ -1,7 +1,9 @@
 import { Children } from "react";
 import { Modal, Button } from "react-bootstrap";
+
 export const Mainmodal = (props) => {
   const children = Children.toArray(props.children);
+
   return (
     <Modal
       show={props.showModal}
@@ -10,6 +12,7 @@ export const Mainmodal = (props) => {
           ? props.actions.control(props.ctrl, "close")
           : props.actions.control()
       }
+      dialogClassName="custom-modal" // Use the class for custom styling
     >
       <Modal.Header closeButton>
         <Modal.Title>
@@ -19,9 +22,11 @@ export const Mainmodal = (props) => {
         </Modal.Title>
       </Modal.Header>
       <Modal.Body
-        className={
-          Object.keys(props).includes("bodyclass") ? props["bodyClass"] : ""
-        }
+        style={{
+          maxHeight: "60vh", // Set the maximum height of the modal body
+          overflowY: "auto", // Allow vertical scrolling
+        }}
+        className={props.bodyClass || ""} // Apply optional custom class if provided
       >
         {children.map((child, index) => (
           <span key={index}>{child}</span>
