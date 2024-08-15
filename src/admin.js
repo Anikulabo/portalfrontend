@@ -4,9 +4,11 @@ import Subjectimages, {
   Usersimages,
   ProfileTable,
   Personal,
+  Textinput,
 } from "./components";
 import avatar1 from "./components/img/Avatart1.jpg";
 import { Mainmodal } from "./components";
+import { updateentry } from "./action";
 import { automatic_obj_update } from "./components/dependencies";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -38,13 +40,15 @@ const allActions = [
   "viewDepartments",
 ];
 const Admin = () => {
+  const dispatch = useDispatch();
   const [activeButton, setActiveButton] = useState("Teacher's Detail");
   const [activeprofile, setActiveprofile] = useState(1);
+  const [dataToSubmit, setDataToSubmit] = useState({});
   let [teachers, setTeachers] = useState(all_teachers);
   const [fulldetail, setFulldetail] = useState({
     tabledata: teachers,
   });
-  const icons=useSelector((state)=>state.items.allsubjecticons);
+  const icons = useSelector((state) => state.items.allsubjecticons);
   const navigate = useNavigate();
   const get_all_detail = {
     "Student's Detail": mockData,
@@ -66,11 +70,20 @@ const Admin = () => {
     return markedentry;
   });
   const token = useSelector((state) => state.items.token);
+  let [allmodals, setAllmodals] = useState(false);
   const adddata = () => {
     switch (activeButton) {
       case "Teacher's Detail":
         navigate("/teacheregistration", { replace: false });
+        break;
+      default:
+        setAllmodals(true);
+        console.log(allmodals);
     }
+  };
+  const updatedata = (value, part) => {
+    setDataToSubmit({ ...dataToSubmit, [part]: value });
+    dispatch(updateentry(value, part));
   };
   useEffect(() => {
     const fetchData = async () => {
@@ -135,18 +148,9 @@ const Admin = () => {
 
     return computedDetail;
   }, [activeprofile, activeButton, get_all_detail, subjects]);
-
-  const [allmodals, setAllmodals] = useState({
-    updateStudent: false,
-    viewClasses: false,
-    viewSession: false,
-    viewCategory: false,
-    viewSubjects: false,
-  });
   const handleButtonClick = (sectionName, value) => {
     setActiveButton(sectionName);
     console.log(icons);
-    console.log(Subjectimages)
     switch (sectionName) {
       case "Teacher's Detail":
         setFulldetail({ ...fulldetail, tabledata: all_teachers });
@@ -186,20 +190,9 @@ const Admin = () => {
         console.log("no default condition is giving yet");
     }
   };
-  const modalupdate = (modal, action) => {
-    let newmodals;
-    if (action === "open") {
-      newmodals = automatic_obj_update(allmodals, true, modal);
-    } else {
-      newmodals = automatic_obj_update(allmodals, false, modal);
-    }
-    setAllmodals(newmodals);
+  const modalupdate = () => {
+    setAllmodals(!allmodals);
   };
-  // const modalopen=(modal)=>{
-  //   switch(modal){
-  //     case ""
-  //   }
-  // }
   const addentry = (value) => {
     // allowing multiple addition of entry
     if (Array.isArray(markedentry[activeButton])) {
@@ -235,19 +228,28 @@ const Admin = () => {
   return (
     <div className="App">
       <div className="container-fluid">
+        {/* all modals are here*/}
         <Mainmodal
-          showmodal={allmodals["updateStudent"]}
-          actions={{ control: modalupdate }}
-          title="Student Update"
-          ctrl="updateStudent"
-          footer={{
-            close: "close",
-            mainfunction: "updateStudents",
-            modalcontrolled: "changepassword",
-          }}
+          showModal={allmodals}
+          title={
+            allActions.indexOf(activeButton) < 2
+              ? `Add ${activeButton.slice(0, activeButton.indexOf("'"))}`
+              : `Add to ${activeButton.slice(activeButton.indexOf("w") + 1)}`
+          }
+          actions={{ control: modalupdate, mainfunction: updatedata }}
+          footer={{ close: "close", mainfunction: "Add" }}
         >
-          <input type="text" />
+          {activeButton === "Student's Detail" && (
+            <Textinput
+              variable={"First Name"}
+              username={data.fname}
+              placeholder={"Enter the Teacher's firstname"}
+              action={updatedata}
+              ctrl={"fname"}
+            />
+          )}
         </Mainmodal>
+        {/*main layout*/}
         <div className="row">
           <Sidebar
             items={allActions}
@@ -270,7 +272,7 @@ const Admin = () => {
                   if (allActions.indexOf(activeButton) < 2) {
                     return Usersimages;
                   } else if (activeButton === "viewSubjects") {
-                    return icons!==null?icons:Subjectimages;
+                    return icons !== null ? icons : Subjectimages;
                   } else {
                     return undefined;
                   }

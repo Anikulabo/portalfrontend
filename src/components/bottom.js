@@ -6,7 +6,7 @@ export const Bottom = ({ number, action, btndisplay, ctrl }) => {
       style={{
         position: "fixed",
         bottom: "0",
-        left: "80%", // Adjust to center the buttons horizontally
+        left: "70%", // Adjust to center the buttons horizontally
         transform: "translateX(-50%)",
         width: "100%",
         display: "flex",

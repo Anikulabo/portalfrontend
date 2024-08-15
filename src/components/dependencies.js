@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { store } from '..';
+import axios from "axios";
+import { store } from "..";
 export const objectreducer = (prev, usefulkeys) => {
   // Check if argument is a non null object
   if (typeof prev !== "object" || prev === null || !Array.isArray(usefulkeys)) {
@@ -169,38 +169,48 @@ export const automatic_obj_update = (obj, value, key) => {
   try {
     uniquekeycheck(obj); // This will throw an error if there are duplicate keys
 
+    // Base case: If the key is directly found at the current level
     if (obj.hasOwnProperty(key)) {
       if (Array.isArray(obj[key])) {
         return { ...obj, [key]: [...obj[key], value] };
       } else {
         return { ...obj, [key]: value };
       }
-    } else {
-      for (const [childkey, childvalue] of Object.entries(obj)) {
-        if (
-          typeof childvalue === "object" &&
-          !Array.isArray(childvalue) &&
-          childvalue !== null
-        ) {
-          if (childvalue.hasOwnProperty(key)) {
-            return {
-              ...obj,
-              [childkey]: { ...childvalue, [key]: value },
-            };
-          }
-        }
-      }
     }
 
-    // If key is not found, add it at the top level
-    return { ...obj, [key]: value };
+    // Recursive case: Search through nested objects
+    const updatedObj = Object.entries(obj).reduce(
+      (acc, [childKey, childValue]) => {
+        if (
+          typeof childValue === "object" &&
+          !Array.isArray(childValue) &&
+          childValue !== null
+        ) {
+          // Recursively call `automatic_obj_update` on nested objects
+          console.log(`updating ${childKey}`);
+          acc[childKey] = automatic_obj_update(childValue, value, key);
+        } else {
+          acc[childKey] = childValue;
+        }
+        return acc;
+      },
+      {}
+    );
+
+    // If the key was found and updated in the nested object, return the updated object
+    if (JSON.stringify(updatedObj) !== JSON.stringify(obj)) {
+      return updatedObj;
+    } else {
+      return { ...obj };
+    }
   } catch (error) {
     console.error("Error:", error);
   }
 };
+
 // Create an instance of axios
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:3001', // replace with your API's base URL
+  baseURL: "http://localhost:3001", // replace with your API's base URL
 });
 
 // Add a request interceptor to include the token in the headers
@@ -211,7 +221,7 @@ axiosInstance.interceptors.request.use(
 
     if (token) {
       // Add the token to the headers
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
 
     return config;
@@ -221,28 +231,28 @@ axiosInstance.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-export const base64ToFile=(base64String, filename)=> {
+export const base64ToFile = (base64String, filename) => {
   // Extract the base64 data and mime type from the base64 string
-  const [mimeString, base64Data] = base64String.split(',');
+  const [mimeString, base64Data] = base64String.split(",");
   const mimeType = mimeString.match(/:(.*?);/)[1];
-  
+
   // Convert base64 data to a binary buffer
   const binary = atob(base64Data);
   const arrayBuffer = new ArrayBuffer(binary.length);
   const uint8Array = new Uint8Array(arrayBuffer);
-  
+
   for (let i = 0; i < binary.length; i++) {
     uint8Array[i] = binary.charCodeAt(i);
   }
-  
+
   // Create a Blob from the binary data
   const blob = new Blob([arrayBuffer], { type: mimeType });
-  
+
   // Create a File from the Blob
   const file = new File([blob], filename, { type: mimeType });
-  
+
   return file;
-}
+};
 
 export default axiosInstance;
 
