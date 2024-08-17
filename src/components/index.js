@@ -14,6 +14,7 @@ import { Mainmodal } from "./allmodal";
 import ProfileTable from "./profiletable";
 import Sidebar from "./adminsidebar";
 import UploadButton from "./photocomponent";
+import CheckboxDropdown from "./checkboxdropdown";
 const importAll = (requireContext) => {
   let images = {};
   requireContext.keys().forEach((item, index) => {
@@ -46,4 +47,6 @@ export {
   Usersimages,
   ProfileTable,
   Personal,
-UploadButton};
+  CheckboxDropdown,
+  UploadButton,
+};

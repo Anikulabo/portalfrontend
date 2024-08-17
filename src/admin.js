@@ -5,6 +5,8 @@ import Subjectimages, {
   ProfileTable,
   Personal,
   Textinput,
+  CheckboxDropdown,
+  Dropdown2,
 } from "./components";
 import avatar1 from "./components/img/Avatart1.jpg";
 import { Mainmodal } from "./components";
@@ -12,10 +14,13 @@ import {
   automatic_obj_update,
   objectreducerontypes,
   objectsearch,
+  objectreducer,
+  onselected,
 } from "./components/dependencies";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { updateentry } from "./action";
 import {
   all_teachers,
   all_students,
@@ -71,8 +76,10 @@ const ALLREQBODIES = {
 };
 const Admin = () => {
   const dispatch = useDispatch();
+  let selected = useSelector((state) => state.items.selected);
   const [activeButton, setActiveButton] = useState("Teacher's Detail");
   const [activeprofile, setActiveprofile] = useState(1);
+  const [selectedItems, setSelectedItems] = useState([]);
   let [teachers, setTeachers] = useState(all_teachers);
   const [fulldetail, setFulldetail] = useState({
     tabledata: teachers,
@@ -88,13 +95,39 @@ const Admin = () => {
     ...studentdetails,
     ...common,
     categories: [],
-    departments: [],
-    teachers: [],
+    departments: {},
+    teachers: {},
     compulsory: [],
     years: null,
+    term: "",
   });
   const icons = useSelector((state) => state.items.allsubjecticons);
   const navigate = useNavigate();
+  const deptoptions = useMemo(() => {
+    if (alldata["category_id"] !== null) {
+      const results = departments
+        .filter((item) => item.category_id === alldata["category_id"])
+        .map((detail) => {
+          return { name: detail.name };
+        });
+      return results.length > 0 ? results : [];
+    } else {
+      return [];
+    }
+  }, [alldata["category_id"], departments]);
+
+  const yearsoption = useMemo(() => {
+    if (alldata["category_id"] !== null) {
+      const category = categories.find(
+        (item) => item.id === alldata["category_id"]
+      );
+      if (category) {
+        const max_year = category["years"];
+        return Array.from({ length: max_year }, (_, i) => i + 1); // Generating years from 1 to max_year
+      }
+    }
+    return [];
+  }, [alldata["category_id"], categories]);
   const get_all_detail = {
     "Student's Detail": mockData,
     "Teacher's Detail": Teacher_mock_data,
@@ -116,6 +149,54 @@ const Admin = () => {
   });
   const token = useSelector((state) => state.items.token);
   let [allmodals, setAllmodals] = useState(false);
+  const updateselected = (arg) => {
+    let allkeys = Object.keys(arg);
+    try {
+      let currentselection;
+      if (allkeys.includes("mainobject", "visiblepart")) {
+        const { event, mainobject, visiblepart } = arg;
+        currentselection = onselected(event, mainobject, visiblepart);
+      } else {
+        currentselection = {
+          id: arg["event"].target.getAttribute("id"),
+          res: arg["event"].target.innerText,
+        };
+      }
+      dispatch(updateentry(currentselection["res"], arg["type"]));
+      if (arg["type"] === "category" || arg["type"] === "department") {
+        const newalldata = automatic_obj_update(
+          alldata,
+          Number(currentselection["id"]),
+          `${arg["type"]}_id`
+        );
+        setAlldata(newalldata);
+      } else {
+        const newalldata = automatic_obj_update(
+          alldata,
+          Number(currentselection["id"]),
+          `${arg["type"]}`
+        );
+        setAlldata(newalldata);
+      }
+    } catch (error) {
+      console.error("error:", error);
+    }
+  };
+  const updateselecteditems = (event) => {
+    const value = event.target.value;
+    setSelectedItems((prevSelectedItems) => {
+      // Check if the value is already selected
+      const isSelected = prevSelectedItems.includes(value);
+      if (isSelected) {
+        // Remove the item from the selection
+        return prevSelectedItems.filter((item) => item !== value);
+      } else {
+        // Add the item to the selection
+        return [...prevSelectedItems, value];
+      }
+    });
+  };
+
   const adddata = () => {
     switch (activeButton) {
       case "Teacher's Detail":
@@ -127,9 +208,10 @@ const Admin = () => {
     }
   };
   const updatedata = (event, part) => {
-    let value = event.target.value;
+    let value = event.target.value || event.target.innerText;
     let newdatas = automatic_obj_update(alldata, value, part);
     setAlldata(newdatas);
+    console.log(newdatas);
   };
   useEffect(() => {
     const fetchData = async () => {
@@ -286,7 +368,10 @@ const Admin = () => {
           footer={{ close: "close", mainfunction: "Add" }}
         >
           {Object.keys(objectreducerontypes(alldata, "string"))
-            .filter((detail) => detail !== "DOB")
+            .filter(
+              (detail) =>
+                detail !== "DOB" && detail !== "sex" && detail !== "years"
+            )
             .map((item) => {
               return (
                 ALLREQBODIES[activeButton].includes(item) && (
@@ -321,18 +406,134 @@ const Admin = () => {
                 )
               );
             })}
-          {ALLREQBODIES[activeButton].includes("DOB")&&<div className="input-group">
-            <label for="dob">Date of Birth:</label>
-            <input
-              type="date"
-              id="dob"
-              name="dob"
-              onChange={(event) => {
-                updatedata(event, "DOB");
-              }}
-              value={alldata["DOB"]}
-            />
-          </div>}
+          {ALLREQBODIES[activeButton].includes("sex") && (
+            <div className="radio-group" style={{ marginTop: "2rem" }}>
+              <span style={{ marginRight: "30px" }}>Sex:</span>
+              <label for="male">
+                <input
+                  type="radio"
+                  id="male"
+                  name="sex"
+                  value="M"
+                  style={{ marginRight: "5px" }}
+                  onChange={(event) => {
+                    updatedata(event, "sex");
+                  }}
+                  checked={alldata.sex === "M" ? true : false}
+                />
+                Male
+              </label>
+              <label for="female">
+                <input
+                  type="radio"
+                  id="female"
+                  name="sex"
+                  value="F"
+                  style={{ marginRight: "5px" }}
+                  onChange={(event) => {
+                    updatedata(event, "sex");
+                  }}
+                  checked={alldata.sex === "F" ? true : false}
+                />
+                Female
+              </label>
+            </div>
+          )}
+          {ALLREQBODIES[activeButton].includes("category_id") &&
+            (() => {
+              let options = [];
+              try {
+                options = categories.map((category) => {
+                  let { newobject } = objectreducer(category, [
+                    "categoryName",
+                    "years",
+                  ]);
+                  return newobject;
+                });
+                return (
+                  <Dropdown2
+                    options={options}
+                    selected={selected.category}
+                    allobject={categories}
+                    topic={"category"}
+                    style={{ marginTop: "2rem" }}
+                    action={updateselected}
+                    part={"categoryName"}
+                  />
+                );
+              } catch (error) {
+                console.error("Error:", error);
+              }
+            })()}
+          {ALLREQBODIES[activeButton].includes("DOB") && (
+            <div className="input-group">
+              <label for="dob">Date of Birth:</label>
+              <input
+                type="date"
+                id="dob"
+                name="dob"
+                onChange={(event) => {
+                  updatedata(event, "DOB");
+                }}
+                value={alldata["DOB"]}
+              />
+            </div>
+          )}
+          {ALLREQBODIES[activeButton].includes("years") && (
+            <div className="input-container">
+              <span className="input-description">
+                Enter total years the category span:
+              </span>
+              <input
+                type="text"
+                className="small-input"
+                value={alldata["years"]}
+                onChange={(event) => updatedata(event, "years")}
+              />
+            </div>
+          )}
+          {alldata["category_id"] !== 0 && (
+            <div>
+              {ALLREQBODIES[activeButton].includes("department_id") && (
+                <Dropdown2
+                  options={deptoptions.length > 0 ? deptoptions : ["all"]}
+                  selected={selected.department}
+                  allobject={departments}
+                  topic={"department"}
+                  style={{ marginTop: "2rem" }}
+                  action={updateselected}
+                  part={"name"}
+                />
+              )}
+              {ALLREQBODIES[activeButton].includes("year") && (
+                <Dropdown2
+                  options={
+                    yearsoption.length > 0 ? yearsoption : ["no year availble"]
+                  }
+                  selected={selected["selectedyear"]}
+                  allobject={null}
+                  topic={"selectedyear"}
+                  style={{ marginTop: "2rem" }}
+                  action={updateselected}
+                />
+              )}
+            </div>
+          )}
+          {ALLREQBODIES[activeButton].includes("categories") &&
+            (() => {
+              let options = categories.map((item) => {
+                return item.categoryName;
+              });
+              return (
+                <CheckboxDropdown
+                  selectedItems={alldata["categories"]}
+                  options={options}
+                  updateselecteditems={(event) =>
+                    updatedata(event, "categories")
+                  }
+                />
+              );
+            })()}
         </Mainmodal>
         {/*main layout*/}
         <div className="row">

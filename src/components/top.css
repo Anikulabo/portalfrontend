@@ -621,3 +621,27 @@ video {
   transform: scaleX(-1); /* Flip video horizontally */
 }
 
+.dropdown-menu {
+  z-index: 1000; /* Ensure dropdown menu appears above other content */
+  top: 100%; /* Position it below the toggle button */
+}
+.input-container {
+  position: relative;
+  display: inline-block;
+  margin-top: 2rem;
+}
+
+.input-description {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none; /* Allows clicking through the text to the input */
+  padding: 4px; /* Adjust padding if needed */
+}
+
+.small-input {
+  width: 30px; /* Very small width for the input */
+  margin-left: 18rem;
+  padding: 5px; /* Adjust padding to fit content */
+  text-align: center; /* Center the text inside the input */
+}

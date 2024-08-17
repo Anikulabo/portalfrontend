@@ -172,7 +172,12 @@ export const automatic_obj_update = (obj, value, key) => {
     // Base case: If the key is directly found at the current level
     if (obj.hasOwnProperty(key)) {
       if (Array.isArray(obj[key])) {
-        return { ...obj, [key]: [...obj[key], value] };
+        if(!obj[key].includes(value)){
+          return { ...obj, [key]: [...obj[key], value] };  
+        }
+       else{
+        return {...obj,[key]:obj[key].filter((item)=>item!==value)}
+       }
       } else {
         return { ...obj, [key]: value };
       }
@@ -339,25 +344,3 @@ export const objectreducerontypes = (obj, dataType) => {
 
 export default axiosInstance;
 
-/*let updated = false;
-      const newObject = { ...object };
-
-      for (const k in object) {
-        if (typeof object[k] === 'object' && object[k] !== null && !Array.isArray(object[k])) {
-          const result = updateKey(object[k], key, value);
-          if (result !== object[k]) {
-            newObject[k] = result;
-            updated = true;
-          }
-        }
-      }
-
-      if (updated) {
-        return newObject;
-      }
-
-      throw new Error(
-        `The key should be a member of ${Object.keys(object).join(
-          ", "
-        )}. You provided ${key}.`
-      );*/
