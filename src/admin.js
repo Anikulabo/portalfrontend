@@ -7,6 +7,7 @@ import Subjectimages, {
   Textinput,
   CheckboxDropdown,
   Dropdown2,
+  NestedDropdown,
 } from "./components";
 import avatar1 from "./components/img/Avatart1.jpg";
 import { Mainmodal } from "./components";
@@ -19,7 +20,7 @@ import {
 } from "./components/dependencies";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { updateentry } from "./action";
 import {
   all_teachers,
@@ -47,6 +48,15 @@ const allActions = [
   "viewSubjects",
   "viewDepartments",
 ];
+const ALLVISIBLEPART = {
+  "Teacher's Detail": ["id", "fname", "lname", "staff_id"],
+  "Student's Detail": ["id", "first_name", "last_name", "regNo"],
+  viewClasses: ["id", "name"],
+  viewSessions: ["id", "sessionName"],
+  viewCategories: ["id", "categoryName", "years"],
+  viewSubjects: ["id", "name"],
+  viewDepartments: ["id", "name"],
+};
 const ALLREQBODIES = {
   "Teacher's Detail": [
     "fname",
@@ -82,7 +92,13 @@ const Admin = () => {
   const [selectedItems, setSelectedItems] = useState([]);
   let [teachers, setTeachers] = useState(all_teachers);
   const [fulldetail, setFulldetail] = useState({
-    tabledata: teachers,
+    tabledata: teachers.map((item) => {
+      const { newobject } = objectreducer(
+        item,
+        ALLVISIBLEPART["Teacher's Detail"]
+      );
+      return newobject;
+    }),
   });
   let teachersdetail = useSelector((state) => state.items.teacherDetail);
   let studentdetails = useSelector((state) => state.items.studentdetail);
@@ -115,7 +131,22 @@ const Admin = () => {
       return [];
     }
   }, [alldata["category_id"], departments]);
-
+  const nesteddeptoptions = useMemo(() => {
+    let options = {};
+    if (alldata["categories"].length > 0) {
+      alldata["categories"].forEach((item) => {
+        const categoryName = categories.find(
+          (detail) => detail.id === Number(item)
+        )?.["categoryName"];
+        const dept_under_categories = departments.filter(
+          (content) => content.category_id === Number(item)
+        );
+        options[categoryName] =
+          dept_under_categories.length > 0 ? dept_under_categories : ["all"];
+      });
+    }
+    return options;
+  }, [alldata["categories"], departments, categories]);
   const yearsoption = useMemo(() => {
     if (alldata["category_id"] !== null) {
       const category = categories.find(
@@ -148,6 +179,22 @@ const Admin = () => {
     return markedentry;
   });
   const token = useSelector((state) => state.items.token);
+  const selecteddept = useCallback(
+    (event, dept) => {
+      let newdept = {};
+      if (Object.keys(nesteddeptoptions).length > 0) {
+        Object.keys(nesteddeptoptions).forEach(
+          (item) => (newdept[item] = null)
+        );        
+      }
+      if(dept){
+        newdept[dept]=Number(event.target.value)
+      }
+      setAlldata({ ...alldata, departments: newdept })
+    console.log(newdept)
+    },
+    [nesteddeptoptions]
+  );
   let [allmodals, setAllmodals] = useState(false);
   const updateselected = (arg) => {
     let allkeys = Object.keys(arg);
@@ -196,7 +243,6 @@ const Admin = () => {
       }
     });
   };
-
   const adddata = () => {
     switch (activeButton) {
       case "Teacher's Detail":
@@ -275,12 +321,19 @@ const Admin = () => {
     }
 
     return computedDetail;
-  }, [activeprofile, activeButton, get_all_detail, subjects]);
+  }, [activeprofile, activeButton, get_all_detail]);
   const handleButtonClick = (sectionName, value) => {
     setActiveButton(sectionName);
     console.log(icons);
     switch (sectionName) {
       case "Teacher's Detail":
+        all_teachers = all_teachers.map((item) => {
+          const { newobject } = objectreducer(
+            item,
+            ALLVISIBLEPART["Teacher's Detail"]
+          );
+          return newobject;
+        });
         setFulldetail({ ...fulldetail, tabledata: all_teachers });
         setActiveprofile(1);
         break;
@@ -492,6 +545,16 @@ const Admin = () => {
               />
             </div>
           )}
+          {Object.keys(nesteddeptoptions).length > 0 && (
+            <CheckboxDropdown
+              selectedItems={alldata["departments"]}
+              title={"departments"}
+              options={nesteddeptoptions}
+              updateselecteditems={selecteddept}
+              visiblepart={"name"}
+              alldata={alldata['departments']}
+            />
+          )}
           {alldata["category_id"] !== 0 && (
             <div>
               {ALLREQBODIES[activeButton].includes("department_id") && (
@@ -522,15 +585,19 @@ const Admin = () => {
           {ALLREQBODIES[activeButton].includes("categories") &&
             (() => {
               let options = categories.map((item) => {
-                return item.categoryName;
+                const { id, categoryName } = item;
+                return { id, categoryName };
               });
               return (
                 <CheckboxDropdown
                   selectedItems={alldata["categories"]}
+                  title={"categories"}
                   options={options}
-                  updateselecteditems={(event) =>
-                    updatedata(event, "categories")
-                  }
+                  updateselecteditems={(event) => {
+                    updatedata(event, "categories");
+                    console.log(nesteddeptoptions);
+                  }}
+                  visiblepart={"categoryName"}
                 />
               );
             })()}

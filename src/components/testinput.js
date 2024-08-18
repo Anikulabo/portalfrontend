@@ -107,16 +107,16 @@ export const classes = [
   { id: 10, name: "SSS2c" },
 ];
 export const all_teachers = [
-  { id: 1, fname: "oladele", lname: "Godfrey", Staff_id: "20191" },
-  { id: 2, fname: "agboke", lname: "Elizabeth", Staff_id: "20192" },
-  { id: 3, fname: "samuel", lname: "Johnson", Staff_id: "20193" },
-  { id: 4, fname: "grace", lname: "Smith", Staff_id: "20194" },
-  { id: 5, fname: "christopher", lname: "Williams", Staff_id: "20195" },
-  { id: 6, fname: "jessica", lname: "Brown", Staff_id: "20196" },
-  { id: 7, fname: "daniel", lname: "Davis", Staff_id: "20197" },
-  { id: 8, fname: "sophia", lname: "Martinez", Staff_id: "20198" },
-  { id: 9, fname: "matthew", lname: "Garcia", Staff_id: "20199" },
-  { id: 10, fname: "emma", lname: "Miller", Staff_id: "20200" },
+  { id: 1, fname: "oladele", lname: "Godfrey", Staff_id: "20191" ,category_id:3},
+  { id: 2, fname: "agboke", lname: "Elizabeth", Staff_id: "20192" ,category_id:3},
+  { id: 3, fname: "samuel", lname: "Johnson", Staff_id: "20193",category_id:3 },
+  { id: 4, fname: "grace", lname: "Smith", Staff_id: "20194",category_id:1 },
+  { id: 5, fname: "christopher", lname: "Williams", Staff_id: "20195",category_id:1 },
+  { id: 6, fname: "jessica", lname: "Brown", Staff_id: "20196",category_id:1 },
+  { id: 7, fname: "daniel", lname: "Davis", Staff_id: "20197",category_id:2 },
+  { id: 8, fname: "sophia", lname: "Martinez", Staff_id: "20198",category_id:3 },
+  { id: 9, fname: "matthew", lname: "Garcia", Staff_id: "20199",category_id:2 },
+  { id: 10, fname: "emma", lname: "Miller", Staff_id: "20200",category_id:2 },
 ];
 export const categories = [
   { id: 1, categoryName: "Basic", years: 6 },
