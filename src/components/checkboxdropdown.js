@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { Dropdown } from "react-bootstrap";
-const CheckboxDropdownItem = ({
-  option,
-  visiblepart,
-  handleChange,
-  checked,
-}) => (
-  <Dropdown.Item>
+import React, { useState, useEffect, useCallback } from "react";
+import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
+
+const CheckboxDropdownItem = ({ option, visiblepart, handleChange, checked }) => (
+  <DropdownItem
+    toggle={false} // Prevent dropdown from closing
+    style={{
+      cursor: "pointer",
+      backgroundColor: "transparent", // Remove bg-primary styling
+    }}
+    onClick={(e) => e.stopPropagation()} // Prevent event propagation to keep the dropdown open
+  >
     <input
       type="checkbox"
       value={option.id || option}
@@ -15,7 +18,7 @@ const CheckboxDropdownItem = ({
       style={{ marginRight: "8px", cursor: "pointer" }}
     />
     {option[visiblepart] || option}
-  </Dropdown.Item>
+  </DropdownItem>
 );
 
 const CheckboxDropdown = ({
@@ -33,82 +36,81 @@ const CheckboxDropdown = ({
     setCurrentselecteditems(selectedItems);
   }, [selectedItems]);
 
-  const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
+  const toggleDropdown = useCallback(() => {
+    setDropdownOpen(prevState => !prevState);
+  }, []);
 
-  const handleChange = (event) => {
+  const handleChange = useCallback((event) => {
     updateselecteditems(event);
+  }, [updateselecteditems]);
+
+  const renderSelectedTitle = () => {
+    if (Array.isArray(selectedItems) && selectedItems.length > 0) {
+      return `${selectedItems.length} Selected`;
+    } else if (currentselecteditems && visiblepart&&Array.isArray(options)) {
+      const selected = options.find(
+        (item) => item.id === currentselecteditems
+      );
+      return selected ? selected[visiblepart] : "Select Options";
+    }
+    return "Select Options";
   };
+
   if (Array.isArray(options)) {
-    console.log(currentselecteditems);
     return (
       <div className="d-flex justify-content-between align-items-center mb-3 mt-3">
         <p className="mb-0" style={{ marginRight: "50px" }}>
           {title}
         </p>
-        <Dropdown show={dropdownOpen}>
-          <Dropdown.Toggle
-            variant="light"
-            id="dropdown-basic"
-            onClick={toggleDropdown}
-          >
-            {selectedItems.length === 0 && Array.isArray(selectedItems)
-              ? "Select Options"
-              : `${
-                  selectedItems.length ||
-                  options.find((item) => item.id === currentselecteditems)[visiblepart]
-                } Selected`}
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
+        <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
+          <DropdownToggle caret>
+            {renderSelectedTitle()}
+          </DropdownToggle>
+          <DropdownMenu>
             {options.map((option, index) => (
               <CheckboxDropdownItem
                 key={index}
                 option={option}
                 visiblepart={visiblepart}
                 handleChange={handleChange}
-                checked={
-                  Array.isArray(currentselecteditems)
-                    ? currentselecteditems.includes(
-                        typeof option === "object" ? `${option["id"]}` : option
-                      )
-                    : (() => {
-                        if (
-                          typeof currentselecteditems === "number" &&
-                          typeof option === "object"
-                            ? option["id"] === currentselecteditems
-                            : option === currentselecteditems
-                        ) {
-                          return true;
-                        }
-                        if (
-                          currentselecteditems[title] === option &&
-                          typeof currentselecteditems === "object"
-                        ) {
-                          return true;
-                        }
-                      })()
-                }
+                checked={Array.isArray(currentselecteditems)
+                  ? currentselecteditems.includes(
+                      typeof option === "object" ? `${option["id"]}` : option
+                    )
+                  : currentselecteditems ===
+                    (typeof option === "object" ? option["id"] : option)}
               />
             ))}
-          </Dropdown.Menu>
+          </DropdownMenu>
         </Dropdown>
       </div>
     );
   } else if (options && typeof options === "object") {
-    console.log("nested loop");
-    return Object.keys(options).map(
-      (key) =>
-        Array.isArray(options[key]) && (
-          <CheckboxDropdown
-            key={key}
-            selectedItems={alldata[key] ? alldata[key] : []}
-            title={key}
-            options={options[key]}
-            updateselecteditems={(event) => {
-              updateselecteditems(event, key);
-            }}
-            visiblepart={visiblepart}
-          />
-        )
+    return (
+      <div className="d-flex justify-content-between align-items-center mb-3 mt-3">
+        <p className="mb-0" style={{ marginRight: "50px" }}>
+          {title}
+        </p>
+        <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
+          <DropdownToggle caret>
+            {renderSelectedTitle()}
+          </DropdownToggle>
+          <DropdownMenu>
+            {Object.keys(options).map((key) => (
+              <DropdownItem key={key} toggle={false} style={{ backgroundColor: "transparent" }}>
+                <CheckboxDropdown
+                  selectedItems={alldata[key] || []}
+                  title={key}
+                  options={options[key]}
+                  updateselecteditems={(event) => updateselecteditems(event, key)}
+                  visiblepart={visiblepart}
+                  alldata={alldata}
+                />
+              </DropdownItem>
+            ))}
+          </DropdownMenu>
+        </Dropdown>
+      </div>
     );
   } else {
     return null;

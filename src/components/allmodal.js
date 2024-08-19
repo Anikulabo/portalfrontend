@@ -23,7 +23,7 @@ export const Mainmodal = (props) => {
       </Modal.Header>
       <Modal.Body
         style={{
-          maxHeight: "60vh", // Set the maximum height of the modal body
+          maxHeight: "70vh", // Set the maximum height of the modal body
           overflowY: "auto", // Allow vertical scrolling
         }}
         className={props.bodyClass || ""} // Apply optional custom class if provided

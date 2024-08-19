@@ -5,9 +5,8 @@ import Subjectimages, {
   ProfileTable,
   Personal,
   Textinput,
-  CheckboxDropdown,
   Dropdown2,
-  NestedDropdown,
+  AccordionDropdown,
 } from "./components";
 import avatar1 from "./components/img/Avatart1.jpg";
 import { Mainmodal } from "./components";
@@ -89,7 +88,6 @@ const Admin = () => {
   let selected = useSelector((state) => state.items.selected);
   const [activeButton, setActiveButton] = useState("Teacher's Detail");
   const [activeprofile, setActiveprofile] = useState(1);
-  const [selectedItems, setSelectedItems] = useState([]);
   let [teachers, setTeachers] = useState(all_teachers);
   const [fulldetail, setFulldetail] = useState({
     tabledata: teachers.map((item) => {
@@ -185,13 +183,13 @@ const Admin = () => {
       if (Object.keys(nesteddeptoptions).length > 0) {
         Object.keys(nesteddeptoptions).forEach(
           (item) => (newdept[item] = null)
-        );        
+        );
       }
-      if(dept){
-        newdept[dept]=Number(event.target.value)
+      if (dept && event) {
+        newdept[dept] = Number(event.target.value);
       }
-      setAlldata({ ...alldata, departments: newdept })
-    console.log(newdept)
+      setAlldata({ ...alldata, departments: newdept });
+      console.log(newdept);
     },
     [nesteddeptoptions]
   );
@@ -229,20 +227,6 @@ const Admin = () => {
       console.error("error:", error);
     }
   };
-  const updateselecteditems = (event) => {
-    const value = event.target.value;
-    setSelectedItems((prevSelectedItems) => {
-      // Check if the value is already selected
-      const isSelected = prevSelectedItems.includes(value);
-      if (isSelected) {
-        // Remove the item from the selection
-        return prevSelectedItems.filter((item) => item !== value);
-      } else {
-        // Add the item to the selection
-        return [...prevSelectedItems, value];
-      }
-    });
-  };
   const adddata = () => {
     switch (activeButton) {
       case "Teacher's Detail":
@@ -255,7 +239,8 @@ const Admin = () => {
   };
   const updatedata = (event, part) => {
     let value = event.target.value || event.target.innerText;
-    let newdatas = automatic_obj_update(alldata, value, part);
+    let submittedvalue = Number(value) !== NaN ? Number(value) : value;
+    let newdatas = automatic_obj_update(alldata, submittedvalue, part);
     setAlldata(newdatas);
     console.log(newdatas);
   };
@@ -283,6 +268,19 @@ const Admin = () => {
     };
     fetchData();
   }, []);
+  useEffect(() => {
+    let newdept = {};
+    if (nesteddeptoptions){
+      const all_expected_dept_keys = Object.keys(nesteddeptoptions);
+      const matchingKeys = Object.keys(alldata["departments"]).filter((item) =>
+        all_expected_dept_keys.includes(item)
+      );
+      for (const key of matchingKeys) {
+        newdept[key] = alldata['departments'][key];
+      }
+    }
+    setAlldata({ ...alldata, departments: newdept });
+  }, [nesteddeptoptions]);
   const detail = useMemo(() => {
     let computedDetail = {};
 
@@ -327,14 +325,14 @@ const Admin = () => {
     console.log(icons);
     switch (sectionName) {
       case "Teacher's Detail":
-        all_teachers = all_teachers.map((item) => {
+        const tabledata = all_teachers.map((item) => {
           const { newobject } = objectreducer(
             item,
             ALLVISIBLEPART["Teacher's Detail"]
           );
           return newobject;
         });
-        setFulldetail({ ...fulldetail, tabledata: all_teachers });
+        setFulldetail({ ...fulldetail, tabledata: tabledata });
         setActiveprofile(1);
         break;
       case "Student's Detail":
@@ -545,16 +543,6 @@ const Admin = () => {
               />
             </div>
           )}
-          {Object.keys(nesteddeptoptions).length > 0 && (
-            <CheckboxDropdown
-              selectedItems={alldata["departments"]}
-              title={"departments"}
-              options={nesteddeptoptions}
-              updateselecteditems={selecteddept}
-              visiblepart={"name"}
-              alldata={alldata['departments']}
-            />
-          )}
           {alldata["category_id"] !== 0 && (
             <div>
               {ALLREQBODIES[activeButton].includes("department_id") && (
@@ -589,18 +577,27 @@ const Admin = () => {
                 return { id, categoryName };
               });
               return (
-                <CheckboxDropdown
-                  selectedItems={alldata["categories"]}
+                <AccordionDropdown
+                  selecteditems={alldata["categories"]}
                   title={"categories"}
-                  options={options}
-                  updateselecteditems={(event) => {
+                  content={options}
+                  setSelecteditems={(event) => {
                     updatedata(event, "categories");
                     console.log(nesteddeptoptions);
                   }}
-                  visiblepart={"categoryName"}
+                  visible={"categoryName"}
                 />
               );
             })()}
+          {Object.keys(nesteddeptoptions).length > 0 && (
+            <AccordionDropdown
+              title={"departments taking course"}
+              content={nesteddeptoptions}
+              setSelecteditems={selecteddept}
+              alldata={alldata["departments"]}
+              visible={"name"}
+            />
+          )}
         </Mainmodal>
         {/*main layout*/}
         <div className="row">

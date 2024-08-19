@@ -9,13 +9,14 @@ import Header from "./header";
 import TeacherCard from "./teachercard";
 import CardComponent from "./cardcomponent";
 import Personal from "./personalinformation";
-import NestedDropdown from "./nesteddropdown";
+import ObjectAccordion from "./nesteddropdown";
 import { renewToken } from "./useTokenRenewal";
 import { Mainmodal } from "./allmodal";
 import ProfileTable from "./profiletable";
 import Sidebar from "./adminsidebar";
 import UploadButton from "./photocomponent";
 import CheckboxDropdown from "./checkboxdropdown";
+import { AccordionDropdown } from "./nesteddropdown";
 const importAll = (requireContext) => {
   let images = {};
   requireContext.keys().forEach((item, index) => {
@@ -46,8 +47,9 @@ export {
   renewToken,
   Sidebar,
   Usersimages,
-  NestedDropdown,
-  ProfileTable,
+ObjectAccordion,
+AccordionDropdown,
+ProfileTable,
   Personal,
   CheckboxDropdown,
   UploadButton,
