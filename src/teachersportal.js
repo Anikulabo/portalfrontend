@@ -3,16 +3,64 @@ import { Header, Button } from "./components";
 import avatar1 from "./components/img/Avatart1.jpg";
 import "./components/top.css";
 import { teacherSubject } from "./components/testinput";
+import { getprofile } from "./components/dependencies";
 import Subjectimages from "./components";
 import { CardComponent } from "./components";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import io from "socket.io-client";
+import { updateentry } from "./action";
+import { useState, useEffect } from "react";
+
+// Initialize socket connection outside the component
+
 export const TeacherPortal = () => {
   const notifications = useSelector((state) => state.items.notifications);
-  let allcategories = teacherSubject.map((item) => {
-    return item.categoryName;
+  const dispatch = useDispatch();
+  const [detail, setDetails] = useState({});
+  const token = useSelector((state) => state.items.token);
+  const socket = io("http://localhost:3001", {
+    query: { token },
+    transports: ["websocket"], // Ensure websocket transport is enabled
   });
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (token) {
+        try {
+          let data = await getprofile(token);
+          setDetails(data);
+          console.log(data);
+
+          // Join room after profile is fetched
+          const recipient = data.id; // Ensure you have the correct field for recipient ID
+          const room = `teacher_${recipient}`;
+          socket.emit("joinRoom", room);
+        } catch (error) {
+          alert(error.message);
+        }
+      }
+    };
+
+    fetchProfile();
+
+    // Set up socket listener
+    socket.on("message", (message) => {
+      console.log("New message:", message);
+      const notification = {
+        activity: message,
+        seen: false,
+      };
+      dispatch(updateentry(notification, "notifications"));
+    });
+
+    return () => {
+      socket.off("message"); // Clean up listener on unmount
+    };
+  }, [dispatch]);
+  // Your existing code for processing subjects and rendering cards
+  let allcategories = teacherSubject.map((item) => item.categoryName);
   let uniquecategory = [...new Set(allcategories)];
   const rearrangement = {};
+
   for (const Category of uniquecategory) {
     let subject_in_category = teacherSubject
       .filter((detail) => detail.categoryName === Category)
@@ -22,7 +70,7 @@ export const TeacherPortal = () => {
       });
     rearrangement[Category] = subject_in_category;
   }
-  console.log(rearrangement);
+
   return (
     <div
       className="container-fluid full-height-container"
@@ -83,38 +131,36 @@ export const TeacherPortal = () => {
               className="row"
               style={{ marginTop: "8rem", overflowY: "auto" }}
             >
-              {uniquecategory.map((detail) => {
-                return (
-                  <div className="container-fluid">
-                    <div className="row">
-                      <div className="col-12">
-                        <h4
-                          style={{
-                            textTransform: "capitalize",
-                            fontWeight: "bolder",
-                          }}
-                        >
-                          {" "}
-                          {detail} category:
-                        </h4>
-                      </div>
-                      {rearrangement[detail].map((item, index) => (
-                        <div
-                          key={index}
-                          className="col-sm-6 col-md-4 col-lg-3 d-flex align-items-stretch"
-                        >
-                          <CardComponent
-                            imageSrc={Subjectimages[`${item["name"]}.jpg`]}
-                            name={item["name"]}
-                            year={item["year"]}
-                            className="card-component"
-                          />
-                        </div>
-                      ))}
+              {uniquecategory.map((detail) => (
+                <div className="container-fluid" key={detail}>
+                  <div className="row">
+                    <div className="col-12">
+                      <h4
+                        style={{
+                          textTransform: "capitalize",
+                          fontWeight: "bolder",
+                        }}
+                      >
+                        {" "}
+                        {detail} category:
+                      </h4>
                     </div>
+                    {rearrangement[detail].map((item, index) => (
+                      <div
+                        key={index}
+                        className="col-sm-6 col-md-4 col-lg-3 d-flex align-items-stretch"
+                      >
+                        <CardComponent
+                          imageSrc={Subjectimages[`${item["name"]}.jpg`]}
+                          name={item["name"]}
+                          year={item["year"]}
+                          className="card-component"
+                        />
+                      </div>
+                    ))}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
         </div>

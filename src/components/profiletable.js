@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import avatar1 from "../components/img/Avatart1.jpg";
+import ClipLoader from "react-spinners/ClipLoader";
+import avatar1 from "./img/Avatart1.jpg";
 const ProfileTable = ({
   tabledata,
   Usersimages,
@@ -11,14 +12,20 @@ const ProfileTable = ({
   markedentries,
   classtype,
   top,
-  addfunction
+  addfunction,
+  isLoading, // Pass this as a prop to show the spinner
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
-
+  let consoleduserimages = Usersimages
+    ? Object.keys(Usersimages).map((image) => {
+        let dotindex = image.indexOf(".");
+        return image.slice(0, dotindex);
+      })
+    : null;
   const filteredData =
     searchTerm !== ""
       ? tabledata.filter((item) =>
@@ -27,6 +34,7 @@ const ProfileTable = ({
           )
         )
       : tabledata;
+
   return (
     <div
       className={`table-container ${classtype}`}
@@ -77,13 +85,24 @@ const ProfileTable = ({
         </div>
       </div>
       <div style={{ flex: 1, overflowY: "auto" }}>
-        {filteredData.length > 0 ? (
+        {isLoading ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <ClipLoader color={"#123abc"} loading={isLoading} size={50} />
+          </div>
+        ) : filteredData.length > 0 ? (
           <table className="table">
             <thead>
               <tr>
-                <th>marked</th>
+                <th>Marked</th>
                 {Usersimages && (
-                  <th>{topic !== "Subjects" ? "profile" : "icon"}</th>
+                  <th>{topic !== "Subjects" ? "Profile" : "Icon"}</th>
                 )}
                 {Object.keys(filteredData[0])
                   .filter((item) => item !== "id")
@@ -126,35 +145,13 @@ const ProfileTable = ({
                       }
                     >
                       <img
-                        src={(() => {
-                          let img;
-                          switch (topic) {
-                            case "Teachers":
-                              img = Object.keys(Usersimages).includes(
-                                `${item["fname"]}.jpg`
-                              )
-                                ? Usersimages[`${item["fname"]}.jpg`]
-                                : avatar1;
-                              break;
-                            case "Students":
-                              img = Object.keys(Usersimages).includes(
-                                `${item["first_name"]}.jpg`
-                              )
-                                ? Usersimages[`${item["first_name"]}.jpg`]
-                                : avatar1;
-                              break;
-                            case "Subjects":
-                              img = Object.keys(Usersimages).includes(
-                                `${item["name"]}.jpg`
-                              )
-                                ? Usersimages[`${item["name"]}.jpg`]
-                                : avatar1;
-                              break;
-                            default:
-                              img = avatar1;
-                          }
-                          return img;
-                        })()}
+                        src={
+                          Usersimages[
+                            `${consoleduserimages.find((img) =>
+                              Object.values(item).includes(img)
+                            )}.jpg`
+                          ] || avatar1
+                        }
                         alt="Profile"
                         className="header-image"
                       />
@@ -205,7 +202,7 @@ const ProfileTable = ({
           <button
             className="btn btn-primary mr-2"
             style={{ marginRight: "15px" }}
-            onClick={()=>addfunction()}
+            onClick={addfunction}
           >
             <i className="fas fa-plus"></i> Add a new entry
           </button>
@@ -230,6 +227,7 @@ ProfileTable.propTypes = {
   Usersimages: PropTypes.object.isRequired,
   activeprofile: PropTypes.number.isRequired,
   setActiveprofile: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool.isRequired, // Add this prop
 };
 
 export default ProfileTable;

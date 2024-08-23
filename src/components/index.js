@@ -9,7 +9,6 @@ import Header from "./header";
 import TeacherCard from "./teachercard";
 import CardComponent from "./cardcomponent";
 import Personal from "./personalinformation";
-import ObjectAccordion from "./nesteddropdown";
 import { renewToken } from "./useTokenRenewal";
 import { Mainmodal } from "./allmodal";
 import ProfileTable from "./profiletable";
@@ -47,7 +46,6 @@ export {
   renewToken,
   Sidebar,
   Usersimages,
-ObjectAccordion,
 AccordionDropdown,
 ProfileTable,
   Personal,

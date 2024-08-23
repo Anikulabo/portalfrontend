@@ -5,11 +5,21 @@ import initialstate from "./reducer/itemreducers";
 import { uniquekeycheck } from "./components/dependencies";
 import { Provider } from "react-redux";
 import { rootReducer } from "./reducer/index";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createStore } from "redux";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 export const store = createStore(rootReducer);
 const root = ReactDOM.createRoot(document.getElementById("root"));
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2, // Example option: number of retries
+      staleTime: 1000 * 60 * 5, // Example option: cache time
+    },
+  },
+});
+
 try {
   uniquekeycheck(initialstate);
   console.log("All keys are unique. Proceeding to render the app.");
@@ -21,9 +31,11 @@ try {
 }
 root.render(
   <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </QueryClientProvider>
   </React.StrictMode>
 );
 

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { store } from "..";
+import { updateentry } from "../action";
 export const objectreducer = (prev, usefulkeys) => {
   // Check if argument is a non null object
   if (typeof prev !== "object" || prev === null || !Array.isArray(usefulkeys)) {
@@ -172,12 +173,11 @@ export const automatic_obj_update = (obj, value, key) => {
     // Base case: If the key is directly found at the current level
     if (obj.hasOwnProperty(key)) {
       if (Array.isArray(obj[key])) {
-        if(!obj[key].includes(value)){
-          return { ...obj, [key]: [...obj[key], value] };  
+        if (!obj[key].includes(value)) {
+          return { ...obj, [key]: [...obj[key], value] };
+        } else {
+          return { ...obj, [key]: obj[key].filter((item) => item !== value) };
         }
-       else{
-        return {...obj,[key]:obj[key].filter((item)=>item!==value)}
-       }
       } else {
         return { ...obj, [key]: value };
       }
@@ -267,7 +267,11 @@ export const objectsearch = (obj, searchKey) => {
         return value;
       }
       // If the value is an object, recursively search within it
-      if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+      if (
+        typeof value === "object" &&
+        value !== null &&
+        !Array.isArray(value)
+      ) {
         const result = recursivesearch(value, keyToFind);
         if (result !== undefined) {
           return result;
@@ -341,6 +345,105 @@ export const objectreducerontypes = (obj, dataType) => {
     throw new Error(`Validation error: ${error.message}`);
   }
 };
+export const updateselected = (
+  arg,
+  dispatch,
+  setAlldata,
+  automatic_obj_update,
+  alldata
+) => {
+  let allkeys = Object.keys(arg);
+  try {
+    let currentselection;
+    if (allkeys.includes("mainobject", "visiblepart")) {
+      const { event, mainobject, visiblepart } = arg;
+      currentselection = onselected(event, mainobject, visiblepart);
+    } else {
+      currentselection = {
+        id: arg["event"].target.getAttribute("id"),
+        res: arg["event"].target.innerText,
+      };
+    }
+    dispatch(updateentry(currentselection["res"], arg["type"]));
+    if (arg["type"] === "category" || arg["type"] === "department") {
+      const newalldata = automatic_obj_update(
+        alldata,
+        Number(currentselection["id"]),
+        `${arg["type"]}_id`
+      );
+      setAlldata(newalldata);
+    } else {
+      const newalldata = automatic_obj_update(
+        alldata,
+        Number(currentselection["id"]),
+        `${arg["type"]}`
+      );
+      setAlldata(newalldata);
+    }
+  } catch (error) {
+    console.error("error:", error);
+  }
+};
+export const getprofile = async (token) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:3001/user/yourdetail`,
+      {
+        headers: { Authorization: `Bearer ${token}` }, // Include the token if needed
+      }
+    );
 
+    if (response.status === 200) {
+      return response.data; // Return only the data from the response
+    } else {
+      throw new Error('Failed to fetch profile details.');
+    }
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    throw new Error(error.response ? error.response.data.message : error.message);
+  }
+};
+export const fetchTeachersByCategory = async (categories, token) => {
+  const teachers = {};
+
+  for (const cate of categories) {
+    const catename = categories.find((item) => item.id === parseInt(cate));
+
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/teacher/${cate}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status === 200) {
+        teachers[catename.name] = response.data;
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      teachers[catename.name]=[];
+      throw new Error(error.message);
+    }
+  }
+  console.log(teachers)
+  return teachers;
+};
+export const fetchTeachers = async (token, id, searchRole) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:3001/user/${id}/${searchRole}`,
+      {
+        headers: { Authorization: `Bearer ${token}` }, // Include the token if needed
+      }
+    );
+    if (response.status === 200) {
+      console.log("it's okay");
+      return response.data; // Return the data part of the response
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw new Error("Failed to fetch your requested data"); // Rethrow the error for useQuery to handle
+  }
+};
 export default axiosInstance;
-

@@ -15,12 +15,14 @@ import {
   objectreducerontypes,
   objectsearch,
   objectreducer,
-  onselected,
+  updateselected,
+  fetchTeachersByCategory,
+  fetchTeachers
 } from "./components/dependencies";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { updateentry } from "./action";
+import { useQuery } from "@tanstack/react-query";
 import {
   all_teachers,
   all_students,
@@ -36,7 +38,6 @@ import {
   category_mockdata,
   Subjects_mock,
 } from "./components/testinput";
-import axios from "axios";
 import "./components/top.css";
 const allActions = [
   "Teacher's Detail",
@@ -86,18 +87,65 @@ const ALLREQBODIES = {
 const Admin = () => {
   const dispatch = useDispatch();
   let selected = useSelector((state) => state.items.selected);
+  const token = useSelector((state) => state.items.token);
+  const {
+    data: teacherData,
+    error: teacherError,
+    isLoading: teacherLoading,
+  } = useQuery({
+    queryKey: ["teachers"],
+    queryFn: () => fetchTeachers(token, 0, 2),
+    enabled: token !== null, // Fetch only when token is not null
+  });
+  const {
+    data: teacherByCategory,
+    error: teacherByCategoryError,
+    isLoading: teacherByCategoryLoading,
+  } = useQuery({
+    queryKey: ['teachersByCategory', categories, token],
+    queryFn: () => fetchTeachersByCategory(alldata['categories'], token),
+    enabled: token !== null && categories.length > 0,
+  });
+  /*const {
+    data: studentData,
+    error: studentError,
+    isloading: studentLoading,
+  } = useQuery({
+    queryKey: ["students"],
+    queryFn: () => fetchTeachers(token, 0, 3),
+    enabled: token !== null,
+  });*/
   const [activeButton, setActiveButton] = useState("Teacher's Detail");
   const [activeprofile, setActiveprofile] = useState(1);
   let [teachers, setTeachers] = useState(all_teachers);
   const [fulldetail, setFulldetail] = useState({
-    tabledata: teachers.map((item) => {
-      const { newobject } = objectreducer(
-        item,
-        ALLVISIBLEPART["Teacher's Detail"]
-      );
-      return newobject;
-    }),
+    tabledata: [],
+    isloading: true,
   });
+
+  useEffect(() => {
+    const newTableData = teacherData
+      ? teacherData["detail"].map((item) => {
+          const { newobject } = objectreducer(
+            item,
+            ALLVISIBLEPART["Teacher's Detail"]
+          );
+          return newobject;
+        })
+      : all_teachers.map((item) => {
+          const { newobject } = objectreducer(
+            item,
+            ALLVISIBLEPART["Teacher's Detail"]
+          );
+          return newobject;
+        });
+
+    setFulldetail({
+      tabledata: newTableData,
+      isloading: teacherLoading,
+    });
+  }, [teacherData, teacherLoading, teachers]);
+
   let teachersdetail = useSelector((state) => state.items.teacherDetail);
   let studentdetails = useSelector((state) => state.items.studentdetail);
   let common = useSelector((state) => state.items.common);
@@ -111,7 +159,7 @@ const Admin = () => {
     categories: [],
     departments: {},
     teachers: {},
-    compulsory: [],
+    compulsory: {},
     years: null,
     term: "",
   });
@@ -140,7 +188,16 @@ const Admin = () => {
           (content) => content.category_id === Number(item)
         );
         options[categoryName] =
-          dept_under_categories.length > 0 ? dept_under_categories : ["all"];
+          dept_under_categories.length > 0
+            ? dept_under_categories
+            : [{ id: 0, category_id: Number(item), name: "all" }];
+        if (!options[categoryName].find((detail) => detail.name === "all")) {
+          options[categoryName].push({
+            id: 0,
+            category_id: Number(item),
+            name: "all",
+          });
+        }
       });
     }
     return options;
@@ -176,56 +233,29 @@ const Admin = () => {
     }
     return markedentry;
   });
-  const token = useSelector((state) => state.items.token);
   const selecteddept = useCallback(
     (event, dept) => {
       let newdept = {};
       if (Object.keys(nesteddeptoptions).length > 0) {
-        Object.keys(nesteddeptoptions).forEach(
-          (item) => (newdept[item] = null)
-        );
+        Object.keys(nesteddeptoptions).forEach((item) => {
+          if (nesteddeptoptions[item].length === 1) {
+            newdept[item] = nesteddeptoptions[item][0].id;
+          } else {
+            newdept[item] = null;
+          }
+        });
       }
       if (dept && event) {
-        newdept[dept] = Number(event.target.value);
+        let value = event.target.value;
+        newdept[dept] = !isNaN(Number(value)) ? Number(value) : value;
       }
       setAlldata({ ...alldata, departments: newdept });
-      console.log(newdept);
     },
     [nesteddeptoptions]
   );
   let [allmodals, setAllmodals] = useState(false);
-  const updateselected = (arg) => {
-    let allkeys = Object.keys(arg);
-    try {
-      let currentselection;
-      if (allkeys.includes("mainobject", "visiblepart")) {
-        const { event, mainobject, visiblepart } = arg;
-        currentselection = onselected(event, mainobject, visiblepart);
-      } else {
-        currentselection = {
-          id: arg["event"].target.getAttribute("id"),
-          res: arg["event"].target.innerText,
-        };
-      }
-      dispatch(updateentry(currentselection["res"], arg["type"]));
-      if (arg["type"] === "category" || arg["type"] === "department") {
-        const newalldata = automatic_obj_update(
-          alldata,
-          Number(currentselection["id"]),
-          `${arg["type"]}_id`
-        );
-        setAlldata(newalldata);
-      } else {
-        const newalldata = automatic_obj_update(
-          alldata,
-          Number(currentselection["id"]),
-          `${arg["type"]}`
-        );
-        setAlldata(newalldata);
-      }
-    } catch (error) {
-      console.error("error:", error);
-    }
+  const updateselectedhere = (arg) => {
+    updateselected(arg, dispatch, setAlldata, automatic_obj_update, alldata);
   };
   const adddata = () => {
     switch (activeButton) {
@@ -239,47 +269,30 @@ const Admin = () => {
   };
   const updatedata = (event, part) => {
     let value = event.target.value || event.target.innerText;
-    let submittedvalue = Number(value) !== NaN ? Number(value) : value;
+    let submittedvalue =
+      !isNaN(Number(value)) && value !== "" ? Number(value) : value;
     let newdatas = automatic_obj_update(alldata, submittedvalue, part);
     setAlldata(newdatas);
-    console.log(newdatas);
   };
   useEffect(() => {
-    const fetchData = async () => {
-      let id = 0;
-      let searchRole = 2;
-      try {
-        const teachers = await axios.get(
-          `http://localhost:3001/user/${id}/${searchRole}`,
-          {
-            headers: { Authorization: `Bearer ${token}` }, // Include the token if needed
-          }
-        );
-        const student = await axios.get(`http://localhost:3001/user/${id}/3`, {
-          headers: { Authorization: `Bearer ${token}` }, // Include the token if needed
-        });
-        if (teachers.status === 200) {
-          console.log("it's okay");
-          setTeachers(teachers.data.detail);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-  }, []);
-  useEffect(() => {
     let newdept = {};
-    if (nesteddeptoptions){
+    if (nesteddeptoptions) {
       const all_expected_dept_keys = Object.keys(nesteddeptoptions);
       const matchingKeys = Object.keys(alldata["departments"]).filter((item) =>
         all_expected_dept_keys.includes(item)
       );
-      for (const key of matchingKeys) {
-        newdept[key] = alldata['departments'][key];
+      for (const key of all_expected_dept_keys) {
+        if (nesteddeptoptions[key].length === 1) {
+          newdept[key] = nesteddeptoptions[key][0].id;
+        }
+      }
+      if (matchingKeys.length > 0) {
+        for (const key of matchingKeys) {
+          newdept[key] = alldata["departments"][key];
+        }
       }
     }
-    setAlldata({ ...alldata, departments: newdept });
+    setAlldata((Prevalldata) => ({ ...Prevalldata, departments: newdept }));
   }, [nesteddeptoptions]);
   const detail = useMemo(() => {
     let computedDetail = {};
@@ -325,14 +338,32 @@ const Admin = () => {
     console.log(icons);
     switch (sectionName) {
       case "Teacher's Detail":
-        const tabledata = all_teachers.map((item) => {
-          const { newobject } = objectreducer(
-            item,
-            ALLVISIBLEPART["Teacher's Detail"]
-          );
-          return newobject;
-        });
-        setFulldetail({ ...fulldetail, tabledata: tabledata });
+        if (!teacherLoading && teacherData) {
+          const newTableData = teacherData["detail"].map((item) => {
+            const { newobject } = objectreducer(
+              item,
+              ALLVISIBLEPART["Teacher's Detail"]
+            );
+            return newobject;
+          });
+          setFulldetail({
+            tabledata: newTableData,
+            isloading: teacherLoading,
+          });
+        } else {
+          const tabledata = all_teachers.map((item) => {
+            const { newobject } = objectreducer(
+              item,
+              ALLVISIBLEPART["Teacher's Detail"]
+            );
+            return newobject;
+          });
+          setFulldetail({
+            ...fulldetail,
+            tabledata: tabledata,
+            isLoading: teacherLoading,
+          });
+        }
         setActiveprofile(1);
         break;
       case "Student's Detail":
@@ -552,7 +583,7 @@ const Admin = () => {
                   allobject={departments}
                   topic={"department"}
                   style={{ marginTop: "2rem" }}
-                  action={updateselected}
+                  action={updateselectedhere}
                   part={"name"}
                 />
               )}
@@ -565,7 +596,7 @@ const Admin = () => {
                   allobject={null}
                   topic={"selectedyear"}
                   style={{ marginTop: "2rem" }}
-                  action={updateselected}
+                  action={updateselectedhere}
                 />
               )}
             </div>
@@ -583,7 +614,6 @@ const Admin = () => {
                   content={options}
                   setSelecteditems={(event) => {
                     updatedata(event, "categories");
-                    console.log(nesteddeptoptions);
                   }}
                   visible={"categoryName"}
                 />
@@ -627,6 +657,7 @@ const Admin = () => {
                     return undefined;
                   }
                 })()}
+                isLoading={fulldetail.isloading}
                 activeprofile={activeprofile}
                 topic={(() => {
                   let topic;
