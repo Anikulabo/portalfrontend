@@ -18,10 +18,12 @@ export const TeacherPortal = () => {
   const dispatch = useDispatch();
   const [detail, setDetails] = useState({});
   const token = useSelector((state) => state.items.token);
-  const socket = io("http://localhost:3001", {
-    query: { token },
-    transports: ["websocket"], // Ensure websocket transport is enabled
-  });
+  const socket = token
+    ? io("http://localhost:3001", {
+        query: { token },
+        transports: ["websocket"], // Ensure websocket transport is enabled
+      })
+    : null;
   useEffect(() => {
     const fetchProfile = async () => {
       if (token) {
@@ -43,17 +45,21 @@ export const TeacherPortal = () => {
     fetchProfile();
 
     // Set up socket listener
-    socket.on("message", (message) => {
-      console.log("New message:", message);
-      const notification = {
-        activity: message,
-        seen: false,
-      };
-      dispatch(updateentry(notification, "notifications"));
-    });
+    if (socket !== null) {
+      socket.on("message", (message) => {
+        console.log("New message:", message);
+        const notification = {
+          activity: message,
+          seen: false,
+        };
+        dispatch(updateentry(notification, "notifications"));
+      });
+    }
 
     return () => {
-      socket.off("message"); // Clean up listener on unmount
+      if (socket !== null) {
+        socket.off("message");
+      } // Clean up listener on unmount
     };
   }, [dispatch]);
   // Your existing code for processing subjects and rendering cards

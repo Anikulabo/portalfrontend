@@ -403,32 +403,24 @@ export const getprofile = async (token) => {
     throw new Error(error.response ? error.response.data.message : error.message);
   }
 };
-export const fetchTeachersByCategory = async (categories, token) => {
-  const teachers = {};
-
-  for (const cate of categories) {
-    const catename = categories.find((item) => item.id === parseInt(cate));
-
-    try {
-      const response = await axios.get(
-        `http://localhost:3001/teacher/${cate}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (response.status === 200) {
-        teachers[catename.name] = response.data;
+export const fetchTeachersByCategory = async (dept, cate, token) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:3001/teacher/${cate}/${dept}`,
+      {
+        headers: { Authorization: `Bearer ${token}` }, // Include the token if needed
       }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      teachers[catename.name]=[];
-      throw new Error(error.message);
+    );
+    if (response.status === 201) {
+      console.log(response.data.data)
+      return response.data; // Return the data part of the response
     }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw new Error("Failed to fetch your requested data"); // Rethrow the error for useQuery to handle
   }
-  console.log(teachers)
-  return teachers;
 };
+
 export const fetchTeachers = async (token, id, searchRole) => {
   try {
     const response = await axios.get(
@@ -438,7 +430,6 @@ export const fetchTeachers = async (token, id, searchRole) => {
       }
     );
     if (response.status === 200) {
-      console.log("it's okay");
       return response.data; // Return the data part of the response
     }
   } catch (error) {

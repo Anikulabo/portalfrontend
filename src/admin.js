@@ -17,7 +17,7 @@ import {
   objectreducer,
   updateselected,
   fetchTeachersByCategory,
-  fetchTeachers
+  fetchTeachers,
 } from "./components/dependencies";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -88,6 +88,24 @@ const Admin = () => {
   const dispatch = useDispatch();
   let selected = useSelector((state) => state.items.selected);
   const token = useSelector((state) => state.items.token);
+  let teachersdetail = useSelector((state) => state.items.teacherDetail);
+  let studentdetails = useSelector((state) => state.items.studentdetail);
+  let common = useSelector((state) => state.items.common);
+  const [alldbsearch, setAlldbsearch] = useState({ dept: null, cate: null });
+  let [alldata, setAlldata] = useState({
+    name: "",
+    categoryName: "",
+    sessionName: "",
+    ...teachersdetail,
+    ...studentdetails,
+    ...common,
+    categories: [],
+    departments: {},
+    teachers: {},
+    compulsory: {},
+    years: null,
+    term: "",
+  });
   const {
     data: teacherData,
     error: teacherError,
@@ -96,15 +114,6 @@ const Admin = () => {
     queryKey: ["teachers"],
     queryFn: () => fetchTeachers(token, 0, 2),
     enabled: token !== null, // Fetch only when token is not null
-  });
-  const {
-    data: teacherByCategory,
-    error: teacherByCategoryError,
-    isLoading: teacherByCategoryLoading,
-  } = useQuery({
-    queryKey: ['teachersByCategory', categories, token],
-    queryFn: () => fetchTeachersByCategory(alldata['categories'], token),
-    enabled: token !== null && categories.length > 0,
   });
   /*const {
     data: studentData,
@@ -145,28 +154,10 @@ const Admin = () => {
       isloading: teacherLoading,
     });
   }, [teacherData, teacherLoading, teachers]);
-
-  let teachersdetail = useSelector((state) => state.items.teacherDetail);
-  let studentdetails = useSelector((state) => state.items.studentdetail);
-  let common = useSelector((state) => state.items.common);
-  let [alldata, setAlldata] = useState({
-    name: "",
-    categoryName: "",
-    sessionName: "",
-    ...teachersdetail,
-    ...studentdetails,
-    ...common,
-    categories: [],
-    departments: {},
-    teachers: {},
-    compulsory: {},
-    years: null,
-    term: "",
-  });
   const icons = useSelector((state) => state.items.allsubjecticons);
   const navigate = useNavigate();
   const deptoptions = useMemo(() => {
-    if (alldata["category_id"] !== null) {
+    if (alldata && alldata["category_id"] !== null) {
       const results = departments
         .filter((item) => item.category_id === alldata["category_id"])
         .map((detail) => {
@@ -187,12 +178,16 @@ const Admin = () => {
         const dept_under_categories = departments.filter(
           (content) => content.category_id === Number(item)
         );
-        options[categoryName] =
+        options[`dept.${categoryName}`] =
           dept_under_categories.length > 0
             ? dept_under_categories
             : [{ id: 0, category_id: Number(item), name: "all" }];
-        if (!options[categoryName].find((detail) => detail.name === "all")) {
-          options[categoryName].push({
+        if (
+          !options[`dept.${categoryName}`].find(
+            (detail) => detail.name === "all"
+          )
+        ) {
+          options[`dept.${categoryName}`].push({
             id: 0,
             category_id: Number(item),
             name: "all",
@@ -202,6 +197,31 @@ const Admin = () => {
     }
     return options;
   }, [alldata["categories"], departments, categories]);
+  const {
+    data: teachersBycategory,
+    error: teacherByCategoryError,
+    isLoading: teacherByCategoryLoading,
+  } = useQuery({
+    queryKey: ["teachersByCategory"],
+    queryFn: () =>
+      fetchTeachersByCategory(alldbsearch["dept"], alldbsearch["cate"], token),
+    enabled: token !== null && !Object.values(alldbsearch).includes(null),
+  });
+  const selectedteachers = useCallback(
+    (cate, event) => {
+      let value = event.target.value;
+      if (Object.keys(alldata["teachers"]).length > 0) {
+        setAlldata({
+          ...alldata,
+          teachers: {
+            ...alldata["teachers"],
+            [cate]: [...alldata["teachers"][cate], value],
+          },
+        });
+      }
+    },
+    [alldata["teachers"]]
+  );
   const yearsoption = useMemo(() => {
     if (alldata["category_id"] !== null) {
       const category = categories.find(
@@ -233,26 +253,6 @@ const Admin = () => {
     }
     return markedentry;
   });
-  const selecteddept = useCallback(
-    (event, dept) => {
-      let newdept = {};
-      if (Object.keys(nesteddeptoptions).length > 0) {
-        Object.keys(nesteddeptoptions).forEach((item) => {
-          if (nesteddeptoptions[item].length === 1) {
-            newdept[item] = nesteddeptoptions[item][0].id;
-          } else {
-            newdept[item] = null;
-          }
-        });
-      }
-      if (dept && event) {
-        let value = event.target.value;
-        newdept[dept] = !isNaN(Number(value)) ? Number(value) : value;
-      }
-      setAlldata({ ...alldata, departments: newdept });
-    },
-    [nesteddeptoptions]
-  );
   let [allmodals, setAllmodals] = useState(false);
   const updateselectedhere = (arg) => {
     updateselected(arg, dispatch, setAlldata, automatic_obj_update, alldata);
@@ -264,7 +264,6 @@ const Admin = () => {
         break;
       default:
         setAllmodals(true);
-        console.log(allmodals);
     }
   };
   const updatedata = (event, part) => {
@@ -274,26 +273,100 @@ const Admin = () => {
     let newdatas = automatic_obj_update(alldata, submittedvalue, part);
     setAlldata(newdatas);
   };
+  const selecteddept = useCallback(
+    (event, dept) => {
+      console.log("departments b4 selection:", alldata["departments"]);
+      let newdept = { ...alldata["departments"] };
+      // if (Object.keys(nesteddeptoptions).length > 0) {
+      //   Object.keys(nesteddeptoptions).forEach((item) => {
+      //     if (nesteddeptoptions[item].length === 1) {
+      //       newdept[item] = nesteddeptoptions[item][0].id;
+      //     } else {
+      //       newdept[item] = null;
+      //     }
+      //   });
+      // }
+
+      if (dept && event) {
+        let value = event.target.value;
+        newdept[dept] = !isNaN(Number(value)) ? Number(value) : value;
+      }
+      setAlldata((Prevalldata) => ({
+        ...Prevalldata,
+        departments: { ...Prevalldata.departments, ...newdept },
+      }));
+    },
+    [nesteddeptoptions]
+  );
+
+  const addedfunctionality = useCallback(
+    (value) => {
+      let cate_detail = categories.find((item) => item.categoryName === value);
+      if (cate_detail && alldata["departments"] && alldata["departments"][`dept.${value}`]) {
+        const updatedDept = alldata["departments"][`dept.${value}`];
+  
+        setAlldbsearch((prevSearch) => ({
+          ...prevSearch,
+          cate: cate_detail.id,
+          dept: updatedDept,
+        }));
+  
+        return {
+          data: teachersBycategory,
+          isloading: teacherByCategoryLoading,
+          error: teacherByCategoryError,
+        };
+      }
+    },
+    [alldata, alldbsearch] // Use the entire alldata object as a dependency
+  );
+  
   useEffect(() => {
-    let newdept = {};
+    let newdept = { ...alldata["departments"] }; // Create a copy to avoid direct mutation
+  
     if (nesteddeptoptions) {
       const all_expected_dept_keys = Object.keys(nesteddeptoptions);
-      const matchingKeys = Object.keys(alldata["departments"]).filter((item) =>
-        all_expected_dept_keys.includes(item)
+      const unmatchingKeys = Object.keys(newdept).filter(
+        (item) => !all_expected_dept_keys.includes(item)
       );
+  
+      // Update or add department keys based on nesteddeptoptions
       for (const key of all_expected_dept_keys) {
         if (nesteddeptoptions[key].length === 1) {
           newdept[key] = nesteddeptoptions[key][0].id;
         }
       }
-      if (matchingKeys.length > 0) {
-        for (const key of matchingKeys) {
-          newdept[key] = alldata["departments"][key];
-        }
+  
+      // Remove unmatching keys
+      if (unmatchingKeys.length > 0) {
+        unmatchingKeys.forEach((key) => {
+          delete newdept[key];
+        });
       }
     }
+  
     setAlldata((Prevalldata) => ({ ...Prevalldata, departments: newdept }));
   }, [nesteddeptoptions]);
+  
+  useEffect(() => {
+    if (alldata["categories"] && alldata["categories"].length > 0) {
+      let newteachers = {};
+      categories
+        .filter((item) => alldata["categories"].includes(item.id))
+        .forEach((detail) => {
+          const teacherKey = `teach.${detail.categoryName}`;
+          if (Object.keys(alldata["teachers"]).includes(teacherKey)) {
+            newteachers[teacherKey] = alldata["teachers"][teacherKey];
+          } else {
+            newteachers[teacherKey] = [];
+          }
+        });
+      setAlldata((prevData) => ({
+        ...prevData,
+        teachers: newteachers,
+      }));
+    }
+  }, [alldata["categories"]]);
   const detail = useMemo(() => {
     let computedDetail = {};
 
@@ -601,24 +674,20 @@ const Admin = () => {
               )}
             </div>
           )}
-          {ALLREQBODIES[activeButton].includes("categories") &&
-            (() => {
-              let options = categories.map((item) => {
+          {ALLREQBODIES[activeButton].includes("categories") && (
+            <AccordionDropdown
+              selecteditems={alldata["categories"]}
+              title={"categories"}
+              content={categories.map((item) => {
                 const { id, categoryName } = item;
                 return { id, categoryName };
-              });
-              return (
-                <AccordionDropdown
-                  selecteditems={alldata["categories"]}
-                  title={"categories"}
-                  content={options}
-                  setSelecteditems={(event) => {
-                    updatedata(event, "categories");
-                  }}
-                  visible={"categoryName"}
-                />
-              );
-            })()}
+              })}
+              setSelecteditems={(event) => {
+                updatedata(event, "categories");
+              }}
+              visible={"categoryName"}
+            />
+          )}
           {Object.keys(nesteddeptoptions).length > 0 && (
             <AccordionDropdown
               title={"departments taking course"}
@@ -627,6 +696,18 @@ const Admin = () => {
               alldata={alldata["departments"]}
               visible={"name"}
             />
+          )}
+          {token && Object.keys(alldata["departments"]).length > 0 && (
+            <div>
+              <AccordionDropdown
+                title="Select Teachers"
+                content={Object.keys(alldata["teachers"])}
+                visible={["fname", "Total_subject"]}
+                selecteditems={alldata["teachers"]}
+                setSelecteditems={selectedteachers}
+                addedfunctionality={addedfunctionality}
+              />
+            </div>
           )}
         </Mainmodal>
         {/*main layout*/}

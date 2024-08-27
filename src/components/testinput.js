@@ -119,14 +119,14 @@ export const all_teachers = [
   { id: 10, fname: "emma", lname: "Miller", Staff_id: "20200",category_id:2 },
 ];
 export const categories = [
-  { id: 1, categoryName: "Basic", years: 6 },
-  { id: 2, categoryName: "Junior", years: 3 },
-  { id: 3, categoryName: "Senior", years: 3 },
+  { id: 1, categoryName: "Senior", years: 3 },
+  { id: 2, categoryName: "Basic", years: 6 },
+  { id: 3, categoryName: "Junior" , years: 3 },
 ];
 export const departments = [
-  { id: 1, category_id: 3, name: "science" },
-  { id: 2, category_id: 3, name: "art" },
-  { id: 3, category_id: 3, name: "commercial" },
+  { id: 1, category_id: 1, name: "science" },
+  { id: 2, category_id: 1, name: "art" },
+  { id: 3, category_id: 1, name: "commercial" },
 ];
 export const mockData = [
   {
