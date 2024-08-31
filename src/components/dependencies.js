@@ -386,21 +386,20 @@ export const updateselected = (
 };
 export const getprofile = async (token) => {
   try {
-    const response = await axios.get(
-      `http://localhost:3001/user/yourdetail`,
-      {
-        headers: { Authorization: `Bearer ${token}` }, // Include the token if needed
-      }
-    );
+    const response = await axios.get(`http://localhost:3001/user/yourdetail`, {
+      headers: { Authorization: `Bearer ${token}` }, // Include the token if needed
+    });
 
     if (response.status === 200) {
       return response.data; // Return only the data from the response
     } else {
-      throw new Error('Failed to fetch profile details.');
+      throw new Error("Failed to fetch profile details.");
     }
   } catch (error) {
-    console.error('Error fetching profile:', error);
-    throw new Error(error.response ? error.response.data.message : error.message);
+    console.error("Error fetching profile:", error);
+    throw new Error(
+      error.response ? error.response.data.message : error.message
+    );
   }
 };
 export const fetchTeachersByCategory = async (dept, cate, token) => {
@@ -412,12 +411,12 @@ export const fetchTeachersByCategory = async (dept, cate, token) => {
       }
     );
     if (response.status === 201) {
-      console.log(response.data.data)
+      console.log(response.data.data);
       return response.data; // Return the data part of the response
     }
   } catch (error) {
     console.error("Error fetching data:", error);
-    throw new Error("Failed to fetch your requested data"); // Rethrow the error for useQuery to handle
+    throw error; // Rethrow the error for useQuery to handle
   }
 };
 

@@ -15,7 +15,7 @@ import ProfileTable from "./profiletable";
 import Sidebar from "./adminsidebar";
 import UploadButton from "./photocomponent";
 import CheckboxDropdown from "./checkboxdropdown";
-import { AccordionDropdown } from "./nesteddropdown";
+import  AccordionDropdown  from "./nesteddropdown";
 const importAll = (requireContext) => {
   let images = {};
   requireContext.keys().forEach((item, index) => {

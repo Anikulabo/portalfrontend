@@ -7,6 +7,7 @@ import Subjectimages, {
   Textinput,
   Dropdown2,
   AccordionDropdown,
+  UploadButton,
 } from "./components";
 import avatar1 from "./components/img/Avatart1.jpg";
 import { Mainmodal } from "./components";
@@ -23,6 +24,8 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { base64ToFile } from "./components/dependencies";
 import {
   all_teachers,
   all_students,
@@ -90,6 +93,7 @@ const Admin = () => {
   const token = useSelector((state) => state.items.token);
   let teachersdetail = useSelector((state) => state.items.teacherDetail);
   let studentdetails = useSelector((state) => state.items.studentdetail);
+  const img = useSelector((state) => state.items.image);
   let common = useSelector((state) => state.items.common);
   const [alldbsearch, setAlldbsearch] = useState({ dept: null, cate: null });
   let [alldata, setAlldata] = useState({
@@ -102,7 +106,7 @@ const Admin = () => {
     categories: [],
     departments: {},
     teachers: {},
-    compulsory: {},
+    compulsory: [],
     years: null,
     term: "",
   });
@@ -175,6 +179,7 @@ const Admin = () => {
         const categoryName = categories.find(
           (detail) => detail.id === Number(item)
         )?.["categoryName"];
+
         const dept_under_categories = departments.filter(
           (content) => content.category_id === Number(item)
         );
@@ -202,25 +207,33 @@ const Admin = () => {
     error: teacherByCategoryError,
     isLoading: teacherByCategoryLoading,
   } = useQuery({
-    queryKey: ["teachersByCategory"],
+    queryKey: ["teachersByCategory", alldbsearch["dept"], alldbsearch["cate"]],
     queryFn: () =>
       fetchTeachersByCategory(alldbsearch["dept"], alldbsearch["cate"], token),
     enabled: token !== null && !Object.values(alldbsearch).includes(null),
   });
+
   const selectedteachers = useCallback(
     (cate, event) => {
-      let value = event.target.value;
+      let value = !isNaN(Number(event.target.value))
+        ? Number(event.target.value)
+        : event.target.value;
+      //console.log("here is the cate-value pair:", { cate, value });
       if (Object.keys(alldata["teachers"]).length > 0) {
-        setAlldata({
-          ...alldata,
-          teachers: {
-            ...alldata["teachers"],
-            [cate]: [...alldata["teachers"][cate], value],
-          },
-        });
+        const newobject = { ...alldata["teachers"] };
+        if (newobject[cate].includes(value)) {
+          newobject[cate] = newobject[cate].filter(
+            (teacher) => teacher !== value
+          );
+          //console.log(newobject);
+        } else {
+          newobject[cate].push(value);
+        }
+        setAlldata({ ...alldata, teachers: newobject });
+        console.log("selected teachers:", alldata["teachers"]);
       }
     },
-    [alldata["teachers"]]
+    [alldata]
   );
   const yearsoption = useMemo(() => {
     if (alldata["category_id"] !== null) {
@@ -277,16 +290,6 @@ const Admin = () => {
     (event, dept) => {
       console.log("departments b4 selection:", alldata["departments"]);
       let newdept = { ...alldata["departments"] };
-      // if (Object.keys(nesteddeptoptions).length > 0) {
-      //   Object.keys(nesteddeptoptions).forEach((item) => {
-      //     if (nesteddeptoptions[item].length === 1) {
-      //       newdept[item] = nesteddeptoptions[item][0].id;
-      //     } else {
-      //       newdept[item] = null;
-      //     }
-      //   });
-      // }
-
       if (dept && event) {
         let value = event.target.value;
         newdept[dept] = !isNaN(Number(value)) ? Number(value) : value;
@@ -301,42 +304,51 @@ const Admin = () => {
 
   const addedfunctionality = useCallback(
     (value) => {
+      if (!alldata["departments"] || !categories) {
+        console.log("alldata or categories not yet available");
+        return;
+      }
+
       let cate_detail = categories.find((item) => item.categoryName === value);
-      if (cate_detail && alldata["departments"] && alldata["departments"][`dept.${value}`]) {
+      console.log("Category Detail:", cate_detail);
+      console.log("Department Data:", alldata["departments"][`dept.${value}`]);
+
+      if (cate_detail && alldata["departments"][`dept.${value}`] !== null) {
+        console.log("it is working up to this point");
         const updatedDept = alldata["departments"][`dept.${value}`];
-  
         setAlldbsearch((prevSearch) => ({
           ...prevSearch,
           cate: cate_detail.id,
           dept: updatedDept,
         }));
-  
         return {
           data: teachersBycategory,
           isloading: teacherByCategoryLoading,
           error: teacherByCategoryError,
         };
+      } else {
+        console.log("Condition not met");
       }
     },
-    [alldata, alldbsearch] // Use the entire alldata object as a dependency
+    [alldata["departments"], alldbsearch]
   );
-  
+
   useEffect(() => {
     let newdept = { ...alldata["departments"] }; // Create a copy to avoid direct mutation
-  
+
     if (nesteddeptoptions) {
       const all_expected_dept_keys = Object.keys(nesteddeptoptions);
       const unmatchingKeys = Object.keys(newdept).filter(
         (item) => !all_expected_dept_keys.includes(item)
       );
-  
+
       // Update or add department keys based on nesteddeptoptions
       for (const key of all_expected_dept_keys) {
         if (nesteddeptoptions[key].length === 1) {
           newdept[key] = nesteddeptoptions[key][0].id;
         }
       }
-  
+
       // Remove unmatching keys
       if (unmatchingKeys.length > 0) {
         unmatchingKeys.forEach((key) => {
@@ -344,10 +356,10 @@ const Admin = () => {
         });
       }
     }
-  
+
     setAlldata((Prevalldata) => ({ ...Prevalldata, departments: newdept }));
   }, [nesteddeptoptions]);
-  
+
   useEffect(() => {
     if (alldata["categories"] && alldata["categories"].length > 0) {
       let newteachers = {};
@@ -508,6 +520,147 @@ const Admin = () => {
       setMarkedentry(newmarkedentry);
     }
   };
+  const allsubmission = async (event) => {
+    event.preventDefault();
+    const ADD_APIGATEWAYS = {
+      "Teacher's Detail": "teacher",
+      viewSubjects: "subject",
+    };
+
+    if (!token) {
+      alert("You're not logged in properly");
+      return;
+    }
+
+    const formData = new FormData();
+    const specialKeys = ["departments", "teachers", "compulsory"];
+    const requiredFields = ALLREQBODIES[activeButton];
+
+    // Helper function to handle form data appending
+    const appendFormData = (key, value) => {
+      if (value !== undefined && value !== null && value !== "") {
+        formData.append(key, value);
+      }
+    };
+
+    requiredFields.forEach((field) => {
+      const fieldValue = alldata[field];
+
+      if (fieldValue) {
+        if (typeof fieldValue === "object") {
+          if (
+            Array.isArray(fieldValue) &&
+            fieldValue.length > 0 &&
+            !specialKeys.includes(field) // <-- Corrected here
+          ) {
+            if (!specialKeys.includes(field)) {
+              appendFormData(field, fieldValue);
+            } else {
+              switch (field) {
+                case "compulsory":
+                  const compulsory = {};
+                  if (
+                    Array.isArray(alldata["categories"]) &&
+                    alldata["categories"].length > 0
+                  ) {
+                    alldata["categories"].forEach((category) => {
+                      const categoryDetail = categories.find(
+                        (c) => c.id === category
+                      );
+                      if (categoryDetail) {
+                        compulsory[categoryDetail["categoryName"]] =
+                          fieldValue.includes(categoryDetail["categoryName"]);
+                      }
+                    });
+                    appendFormData("compulsory", JSON.stringify(compulsory));
+                  }
+                  break;
+                default:
+                  // Handle other special cases if needed
+                  break;
+              }
+            }
+          } else if (Object.keys(fieldValue).length > 0) {
+            if (!specialKeys.includes(field)) {
+              appendFormData(field, fieldValue);
+            } else {
+              const newFieldValue = {};
+              Object.keys(fieldValue).forEach((key) => {
+                const ignoredIndex = key.indexOf(".") + 1;
+                const trimmedKey = key.slice(ignoredIndex);
+                newFieldValue[trimmedKey] = fieldValue[key];
+              });
+              appendFormData(field, JSON.stringify(newFieldValue));
+            }
+          }
+        } else if (
+          typeof fieldValue === "string" ||
+          typeof fieldValue === "number"
+        ) {
+          appendFormData(field, fieldValue);
+        }
+      }
+    });
+
+    // Validate all required fields have been filled
+    const unfilledFields = requiredFields.filter(
+      (field) =>
+        !alldata[field] ||
+        (typeof alldata[field] === "object" &&
+          ((Array.isArray(alldata[field]) && alldata[field].length === 0) ||
+            (Object.keys(alldata[field]).length === 0 &&
+              field !== "compulsory")))
+    );
+
+    if (unfilledFields.length > 0) {
+      alert(
+        `You need to provide values for the following items: ${unfilledFields.join(
+          ", "
+        )}`
+      );
+      return;
+    }
+
+    if (img) {
+      const imageFile = base64ToFile(img, "image.jpeg"); // Ensure 'img' is base64 string
+      formData.append("file", imageFile);
+    }
+
+    try {
+      const response = await axios.post(
+        `http://localhost:3001/${ADD_APIGATEWAYS[activeButton]}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      // Handle response or errors
+      if (response.status !== 200) {
+        alert(`Submission failed: ${response.statusText}`);
+        throw new Error(`Submission failed: ${response.statusText}`);
+      }
+      let newalldata = { ...alldata };
+      requiredFields.forEach((element) => {
+        if (Array.isArray(alldata[element])) {
+          newalldata = automatic_obj_update(newalldata, [], element);
+        } else if (typeof alldata[element] === "object") {
+          newalldata = automatic_obj_update(newalldata, {}, element);
+        } else if (typeof alldata[element] === "string") {
+          newalldata = automatic_obj_update(newalldata, "", element);
+        } else if (typeof alldata[element] === "number") {
+          newalldata = automatic_obj_update(newalldata, 0, element);
+        }
+      });
+      setAlldata(newalldata)
+      console.log("Submission successful:", response.data);
+    } catch (error) {
+      console.error("Error during form submission:", error);
+    }
+  };
+
   return (
     <div className="App">
       <div className="container-fluid">
@@ -519,7 +672,7 @@ const Admin = () => {
               ? `Add ${activeButton.slice(0, activeButton.indexOf("'"))}`
               : `Add to ${activeButton.slice(activeButton.indexOf("w") + 1)}`
           }
-          actions={{ control: modalupdate, mainfunction: updatedata }}
+          actions={{ control: modalupdate, mainfunction: allsubmission }}
           footer={{ close: "close", mainfunction: "Add" }}
         >
           {Object.keys(objectreducerontypes(alldata, "string"))
@@ -688,14 +841,32 @@ const Admin = () => {
               visible={"categoryName"}
             />
           )}
+          {activeButton === "viewSubjects" && <UploadButton />}
           {Object.keys(nesteddeptoptions).length > 0 && (
-            <AccordionDropdown
-              title={"departments taking course"}
-              content={nesteddeptoptions}
-              setSelecteditems={selecteddept}
-              alldata={alldata["departments"]}
-              visible={"name"}
-            />
+            <div>
+              <AccordionDropdown
+                title={"departments taking course"}
+                content={nesteddeptoptions}
+                setSelecteditems={selecteddept}
+                alldata={alldata["departments"]}
+                visible={"name"}
+              />
+              <AccordionDropdown
+                selecteditems={alldata.compulsory}
+                title={
+                  Object.keys(nesteddeptoptions).length > 1
+                    ? "select categories where subject is compulsory"
+                    : "select if subject is compulsory"
+                }
+                content={Object.keys(nesteddeptoptions).map((item) => {
+                  let ignoredindex = item.indexOf(".") + 1;
+                  return item.slice(ignoredindex, item.length);
+                })}
+                setSelecteditems={(event) => {
+                  updatedata(event, "compulsory");
+                }}
+              />
+            </div>
           )}
           {token && Object.keys(alldata["departments"]).length > 0 && (
             <div>
